@@ -1,0 +1,128 @@
+import { LinearGradient } from "expo-linear-gradient";
+import { Link } from "expo-router";
+import { useState } from "react";
+import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+
+export default function SignupScreen() {
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  return (
+    <LinearGradient
+      colors={["#171739", "#3b1f63", "#16193a"]}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
+      style={styles.container}
+    >
+      <View style={styles.topBlock}>
+        <Text style={styles.title}>Welcome to My Flix!</Text>
+        <Text style={styles.subtitle}>Please sign up to continue</Text>
+      </View>
+
+      <View style={styles.form}>
+        <Text style={styles.label}>Username</Text>
+        <TextInput
+          value={username}
+          onChangeText={setUsername}
+          style={styles.input}
+          autoCapitalize="none"
+        />
+
+        <Text style={styles.label}>Email</Text>
+        <TextInput
+          value={email}
+          onChangeText={setEmail}
+          style={styles.input}
+          autoCapitalize="none"
+          keyboardType="email-address"
+        />
+
+        <Text style={styles.label}>Password</Text>
+        <TextInput
+          value={password}
+          onChangeText={setPassword}
+          style={styles.input}
+          secureTextEntry
+        />
+
+        <Text style={styles.signInText}>
+          Already have an account?{" "}
+          <Link href="/(auth)/login" style={styles.signInLink}>
+            Sign in here
+          </Link>
+        </Text>
+      </View>
+
+      <Pressable style={styles.button}>
+        <Text style={styles.buttonText}>Sign up</Text>
+      </Pressable>
+    </LinearGradient>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    paddingHorizontal: 22,
+    paddingTop: 100,
+    paddingBottom: 24,
+  },
+  topBlock: {
+    alignItems: "center",
+    marginBottom: 42,
+  },
+  title: {
+    color: "#f1f1f7",
+    fontSize: 44,
+    fontWeight: "700",
+    textAlign: "center",
+  },
+  subtitle: {
+    color: "#dfdfea",
+    fontSize: 16,
+    marginTop: 8,
+  },
+  form: {
+    gap: 14,
+  },
+  label: {
+    color: "#e8e8f0",
+    fontSize: 18,
+    marginBottom: -6,
+  },
+  input: {
+    backgroundColor: "#dfdfdf",
+    borderWidth: 2,
+    borderColor: "#b73ad0",
+    borderRadius: 10,
+    height: 52,
+    paddingHorizontal: 12,
+    fontSize: 16,
+  },
+  signInText: {
+    color: "#d7d7e6",
+    marginTop: 8,
+    fontSize: 16,
+  },
+  signInLink: {
+    color: "#d7d7e6",
+    textDecorationLine: "underline",
+    fontWeight: "600",
+  },
+  button: {
+    marginTop: "auto",
+    backgroundColor: "#7e2197",
+    borderWidth: 2,
+    borderColor: "#b73ad0",
+    borderRadius: 10,
+    height: 52,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  buttonText: {
+    color: "#f2e9f6",
+    fontSize: 34,
+    fontWeight: "700",
+  },
+});
