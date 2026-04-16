@@ -25,7 +25,9 @@ export default function ProfileScreen() {
 
         <Text style={styles.headerTitle}>Profile</Text>
 
-        <View style={styles.squareIcon} />
+        <Pressable style={styles.settingsButton}>
+          <Ionicons name="settings-outline" size={22} color={"#fff"} />
+        </Pressable>
       </View>
 
       <Image
@@ -144,5 +146,13 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 18,
     fontWeight: "600",
+  },
+  settingsButton: {
+    width: 36,
+    height: 36,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 18,
+    backgroundColor: "#ffffff1f",
   },
 });
