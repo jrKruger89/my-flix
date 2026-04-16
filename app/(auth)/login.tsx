@@ -105,7 +105,7 @@ const styles = StyleSheet.create({
   },
   title: {
     color: "#f1f1f7",
-    fontSize: 48,
+    fontSize: 32,
     fontWeight: "700",
     textAlign: "center",
   },
@@ -119,15 +119,15 @@ const styles = StyleSheet.create({
   },
   label: {
     color: "#e8e8f0",
-    fontSize: 18,
-    marginBottom: -6,
+    fontSize: 16,
+    marginBottom: -8,
   },
   input: {
     backgroundColor: "#dfdfdf",
     borderWidth: 2,
     borderColor: "#b73ad0",
     borderRadius: 10,
-    height: 52,
+    height: 46,
     paddingHorizontal: 12,
     fontSize: 16,
     color: "#1f1f1f",
@@ -156,10 +156,11 @@ const styles = StyleSheet.create({
     height: 52,
     alignItems: "center",
     justifyContent: "center",
+    paddingHorizontal: 40,
   },
   buttonText: {
     color: "#f2e9f6",
-    fontSize: 34,
+    fontSize: 20,
     fontWeight: "700",
   },
 });
