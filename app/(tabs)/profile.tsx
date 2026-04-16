@@ -18,18 +18,18 @@ export default function ProfileScreen() {
       end={{ x: 1, y: 1 }}
       style={styles.container}
     >
-      <View style={StyleSheet.headerRow}>
-        <Pressable style={stylesiconButton}>
+      <View style={styles.headerRow}>
+        <Pressable style={styles.iconButton}>
           <Ionicons name="arrow-back" size={22} color="#fff" />
         </Pressable>
 
-        <Text style={StyleSheet.headerTitle}>Profile</Text>
+        <Text style={styles.headerTitle}>Profile</Text>
 
-        <View style={StyleSheet.squareIcon} />
+        <View style={styles.squareIcon} />
       </View>
 
       <Image
-        source={require("C:\Users\micro\Desktop\School\second-sem\my-flix\assets\images\MrBaggins.jpg")}
+        source={require("../../assets/images/MrBaggins.jpg")}
         style={styles.avatar}
       />
 
@@ -37,12 +37,16 @@ export default function ProfileScreen() {
 
       <View style={styles.statsRow}>
         <View style={styles.statItem}>
-          <Ionicons name="people-outline" size={16} color={#d7d7e6} />
-          <Text style={StyleSheet.statLabel}>Followers</Text>
+          <Ionicons name="people-outline" size={16} color={"#d7d7e6"} />
+          <Text style={styles.statLabel}>Reviews</Text>
         </View>
         <View style={styles.statItem}>
-          <Ionicons name="people-outline" size={16} color={#d7d7e6} />
-          <Text style={StyleSheet.statLabel}>Following</Text>
+          <Ionicons name="people-outline" size={16} color={"#d7d7e6"} />
+          <Text style={styles.statLabel}>Followers</Text>
+        </View>
+        <View style={styles.statItem}>
+          <Ionicons name="people-outline" size={16} color={"#d7d7e6"} />
+          <Text style={styles.statLabel}>Following</Text>
         </View>
       </View>
 
@@ -122,22 +126,23 @@ const styles = StyleSheet.create({
     gap: 18,
   },
   menuText: {
-    color: "#f3f3f8",
-    fontSize: 31,
+    color: "#F0F0F0",
+    fontSize: 20,
     fontWeight: "400",
+    fontFamily: "K2D_400Regular",
   },
   logoutButton: {
     marginTop: "auto",
-    marginBottom: 36,
+    marginBottom: 22,
     alignSelf: "center",
     backgroundColor: "#b138cf",
-    paddingHorizontal: 30,
-    paddingVertical: 11,
+    paddingHorizontal: 20,
+    paddingVertical: 8,
     borderRadius: 999,
   },
   logoutText: {
     color: "#fff",
-    fontSize: 24,
+    fontSize: 18,
     fontWeight: "600",
   },
 });
