@@ -1,5 +1,5 @@
 import { LinearGradient } from "expo-linear-gradient";
-import { Link } from "expo-router";
+import { Link, router } from "expo-router";
 import { useState } from "react";
 import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 
@@ -7,6 +7,48 @@ export default function SignupScreen() {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
+  const [usernameError, setUsernameError] = useState("");
+  const [emailError, setEmailError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+
+  function validateAndSubmit() {
+    let isValid = true;
+    setEmailError("");
+    setPasswordError("");
+    setUsernameError("");
+
+    const trimmedEmail = email.trim();
+
+    if (!username) {
+      setUsernameError("Username is required");
+      isValid = false;
+    } else if (username.length < 2) {
+      setUsernameError("Username must be at least 2 characters");
+      isValid = false;
+    }
+
+    if (!trimmedEmail) {
+      setEmailError("Email is required");
+      isValid = false;
+    } else if (!trimmedEmail.includes("@")) {
+      setEmailError("Please enter a valid email");
+      isValid = false;
+    }
+
+    if (!password) {
+      setPasswordError("Password is required");
+      isValid = false;
+    } else if (password.length < 6) {
+      setPasswordError("Password must be at least 6 characters");
+      isValid = false;
+    }
+
+    if (!isValid) return;
+
+    // Temporary behavior until backend auth exists
+    router.replace("/(auth)/login");
+  }
 
   return (
     <LinearGradient
@@ -28,6 +70,9 @@ export default function SignupScreen() {
           style={styles.input}
           autoCapitalize="none"
         />
+        {!!usernameError && (
+          <Text style={styles.errorText}>{usernameError}</Text>
+        )}
 
         <Text style={styles.label}>Email</Text>
         <TextInput
@@ -37,6 +82,7 @@ export default function SignupScreen() {
           autoCapitalize="none"
           keyboardType="email-address"
         />
+        {!!emailError && <Text style={styles.errorText}>{emailError}</Text>}
 
         <Text style={styles.label}>Password</Text>
         <TextInput
@@ -45,6 +91,9 @@ export default function SignupScreen() {
           style={styles.input}
           secureTextEntry
         />
+        {!!passwordError && (
+          <Text style={styles.errorText}>{passwordError}</Text>
+        )}
 
         <Text style={styles.signInText}>
           Already have an account?{" "}
@@ -54,7 +103,7 @@ export default function SignupScreen() {
         </Text>
       </View>
 
-      <Pressable style={styles.button}>
+      <Pressable style={styles.button} onPress={validateAndSubmit}>
         <Text style={styles.buttonText}>Sign up</Text>
       </Pressable>
     </LinearGradient>
@@ -126,5 +175,10 @@ const styles = StyleSheet.create({
     color: "#f2e9f6",
     fontSize: 20,
     fontWeight: "700",
+  },
+  errorText: {
+    color: "#ffd4d4",
+    fontSize: 13,
+    marginTop: -8,
   },
 });
