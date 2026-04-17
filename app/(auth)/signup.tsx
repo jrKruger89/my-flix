@@ -72,6 +72,8 @@ export default function SignupScreen() {
           autoCapitalize="none"
           placeholder="Enter a username here"
           placeholderTextColor="#9d9daf"
+          accessibilityLabel="Username"
+          accessibilityHint="Enter the username you want to use for your account"
         />
         {!!usernameError && (
           <Text style={styles.errorText}>{usernameError}</Text>
@@ -86,6 +88,8 @@ export default function SignupScreen() {
           keyboardType="email-address"
           placeholder="Enter your Email here"
           placeholderTextColor="#9d9daf"
+          accessibilityLabel="Email"
+          accessibilityHint="Enter the email address for your account"
         />
         {!!emailError && <Text style={styles.errorText}>{emailError}</Text>}
 
@@ -97,6 +101,8 @@ export default function SignupScreen() {
           secureTextEntry
           placeholder="Enter a password here"
           placeholderTextColor="#9d9daf"
+          accessibilityLabel="Password"
+          accessibilityHint="Enter a password with at least 6 characters"
         />
         {!!passwordError && (
           <Text style={styles.errorText}>{passwordError}</Text>
@@ -110,7 +116,11 @@ export default function SignupScreen() {
         </Text>
       </View>
 
-      <Pressable style={styles.button} onPress={validateAndSubmit}>
+      <Pressable
+        style={styles.button}
+        onPress={validateAndSubmit}
+        accessibilityRole="button"
+      >
         <Text style={styles.buttonText}>Sign up</Text>
       </Pressable>
     </LinearGradient>
