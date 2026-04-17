@@ -1,6 +1,7 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { LinearGradient } from "expo-linear-gradient";
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const MENU_ITEMS = [
   "Saved filmography",
@@ -11,12 +12,14 @@ const MENU_ITEMS = [
 ];
 
 export default function ProfileScreen() {
+  const insets = useSafeAreaInsets();
+
   return (
     <LinearGradient
       colors={["#171739", "#3b1f63", "#16193a"]}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
-      style={styles.container}
+      style={[styles.container, { paddingTop: insets.top + 24 }]}
     >
       <View style={styles.headerRow}>
         <Pressable style={styles.iconButton}>
@@ -70,7 +73,6 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 62,
     paddingHorizontal: 22,
   },
   headerRow: {
