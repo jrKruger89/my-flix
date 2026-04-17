@@ -19,11 +19,12 @@ export default function SignupScreen() {
     setUsernameError("");
 
     const trimmedEmail = email.trim();
+    const trimmedUsername = username.trim();
 
-    if (!username) {
+    if (!trimmedUsername) {
       setUsernameError("Username is required");
       isValid = false;
-    } else if (username.length < 2) {
+    } else if (trimmedUsername.length < 2) {
       setUsernameError("Username must be at least 2 characters");
       isValid = false;
     }
