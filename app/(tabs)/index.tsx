@@ -86,7 +86,7 @@ export default function Index() {
           </View>
         </ScrollView>
 
-        <Text style={styles.rowTitle}>Reccomended</Text>
+        <Text style={styles.rowTitle}>Recommended</Text>
         <ScrollView horizontal={true} contentContainerStyle={styles.scrollRow}>
           <View>
             <Image
