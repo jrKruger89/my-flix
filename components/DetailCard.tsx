@@ -70,9 +70,11 @@ export default function DetailCard({
 
       {/* 
         Release year: Shows year media was released
-        Always rendered as it's typically available in mock data
+        Conditional rendering: Only shows if releaseYear is available
       */}
-      <Text style={styles.details}>Release: {releaseYear}</Text>
+      {releaseYear !== undefined && (
+        <Text style={styles.details}>Release: {releaseYear}</Text>
+      )}
 
       {/* 
         Director(s): Displays names of all directors
