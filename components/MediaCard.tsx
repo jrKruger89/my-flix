@@ -63,7 +63,7 @@ export default function MediaCard({
 const styles = StyleSheet.create({
   // container: Card wrapper dimensions and spacing
   container: {
-    width: "48%", // Each card is 48% of parent width (2 per row)
+    width: "100%", // Each card is 48% of parent width (2 per row)
     marginBottom: 16, // Vertical space between rows
     marginRight: 8, // Horizontal space between cards (48% + 48% + 4% = 100%)
   },
