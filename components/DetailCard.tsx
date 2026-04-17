@@ -40,13 +40,15 @@ export default function DetailCard({
     <View>
       {/* 
         Image: React Native component for displaying images
-        source prop takes object with uri key containing image URL
-        Renders remote images efficiently with caching
+        Only renders when a poster URL exists so `uri` is always a string
+        and missing poster data is handled gracefully
       */}
-      <Image
-        source={{ uri: poster }}
-        style={styles.poster} // Large 400px tall image with rounded corners
-      />
+      {poster && (
+        <Image
+          source={{ uri: poster }}
+          style={styles.poster} // Large 400px tall image with rounded corners
+        />
+      )}
 
       {/* 
         Title text: Large, prominent heading for the media name
@@ -70,9 +72,11 @@ export default function DetailCard({
 
       {/* 
         Release year: Shows year media was released
-        Always rendered as it's typically available in mock data
+        Conditional rendering: Only shows if releaseYear is available
       */}
-      <Text style={styles.details}>Release: {releaseYear}</Text>
+      {releaseYear !== undefined && (
+        <Text style={styles.details}>Release: {releaseYear}</Text>
+      )}
 
       {/* 
         Director(s): Displays names of all directors
