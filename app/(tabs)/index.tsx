@@ -1,7 +1,15 @@
+import { colors, fonts } from "@/constants/theme";
+import { Link } from "expo-router";
+import { StyleSheet, Text, View } from "react-native";
 import * as Font from "expo-font";
 import React, { useEffect, useState } from "react";
 import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
 
+/**
+ * Home Screen (Index) - The landing page of the application
+ * Displays welcome content and provides navigation to other screens
+ * Uses React Native components for cross-platform mobile UI
+ */
 export default function Index() {
   const [fontsLoaded, setFontsLoaded] = useState(false);
 
@@ -130,7 +138,10 @@ export default function Index() {
   );
 }
 
+// StyleSheet: Optimized way to define styles in React Native
+// Creates optimized style objects that are compiled to native platform styles
 const styles = StyleSheet.create({
+  // container: Main view container styles
   container: {
     flex: 1,
     backgroundColor: "#25292e",
