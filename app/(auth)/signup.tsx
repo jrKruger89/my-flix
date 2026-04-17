@@ -69,6 +69,8 @@ export default function SignupScreen() {
           onChangeText={setUsername}
           style={styles.input}
           autoCapitalize="none"
+          placeholder="Enter a username here"
+          placeholderTextColor="#9d9daf"
         />
         {!!usernameError && (
           <Text style={styles.errorText}>{usernameError}</Text>
@@ -81,6 +83,8 @@ export default function SignupScreen() {
           style={styles.input}
           autoCapitalize="none"
           keyboardType="email-address"
+          placeholder="Enter your Email here"
+          placeholderTextColor="#9d9daf"
         />
         {!!emailError && <Text style={styles.errorText}>{emailError}</Text>}
 
@@ -90,6 +94,8 @@ export default function SignupScreen() {
           onChangeText={setPassword}
           style={styles.input}
           secureTextEntry
+          placeholder="Enter a password here"
+          placeholderTextColor="#9d9daf"
         />
         {!!passwordError && (
           <Text style={styles.errorText}>{passwordError}</Text>

@@ -59,7 +59,7 @@ export default function LoginScreen() {
           style={styles.input}
           autoCapitalize="none"
           keyboardType="email-address"
-          placeholder=""
+          placeholder="Enter your Email here"
           placeholderTextColor="#9d9daf"
         />
         {!!emailError && <Text style={styles.errorText}>{emailError}</Text>}
@@ -70,7 +70,7 @@ export default function LoginScreen() {
           onChangeText={setPassword}
           style={styles.input}
           secureTextEntry
-          placeholder=""
+          placeholder="Enter your password here"
           placeholderTextColor="#9d9daf"
         />
         {!!passwordError && (
