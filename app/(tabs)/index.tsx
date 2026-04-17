@@ -6,14 +6,22 @@ export default function Index() {
   const [fontsLoaded, setFontsLoaded] = useState(false);
 
   useEffect(() => {
+    let isMounted = true;
+
     const loadFonts = async () => {
       await Font.loadAsync({
         K2D: require("../../assets/fonts/K2D-Regular.ttf"),
       });
-      setFontsLoaded(true);
+      if (isMounted) {
+        setFontsLoaded(true);
+      }
     };
 
     loadFonts();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   if (!fontsLoaded) {
