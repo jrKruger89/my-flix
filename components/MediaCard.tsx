@@ -33,11 +33,15 @@ export default function MediaCard({
         Image: Displays the movie poster image
         source prop: Object with uri key containing remote image URL
         Efficient rendering with React Native image caching
+        Only render when a poster URL is available to avoid passing
+        an undefined uri to React Native Image
       */}
-      <Image
-        source={{ uri: poster }}
-        style={styles.poster} // 200px height for grid view
-      />
+      {poster ? (
+        <Image
+          source={{ uri: poster }}
+          style={styles.poster} // 200px height for grid view
+        />
+      ) : null}
 
       {/* 
         Title: Movie name text
@@ -63,7 +67,7 @@ export default function MediaCard({
 const styles = StyleSheet.create({
   // container: Card wrapper dimensions and spacing
   container: {
-    width: "48%", // Each card is 48% of parent width (2 per row)
+    width: "100%", // Each card is 48% of parent width (2 per row)
     marginBottom: 16, // Vertical space between rows
     marginRight: 8, // Horizontal space between cards (48% + 48% + 4% = 100%)
   },
