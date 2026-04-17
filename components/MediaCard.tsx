@@ -48,17 +48,23 @@ export default function MediaCard({
         numberOfLines={2}: Truncates title to maximum 2 lines
         Adds '...' ellipsis if text exceeds 2 lines
         Prevents long titles from breaking grid layout
+        Only render when a title is available to avoid empty text output
       */}
-      <Text style={styles.title} numberOfLines={2}>
-        {title}
-      </Text>
+      {title ? (
+        <Text style={styles.title} numberOfLines={2}>
+          {title}
+        </Text>
+      ) : null}
 
       {/* 
         Rating: Star emoji followed by numerical rating
         Purple accent color draws attention to this quick metric
         Format: ★ 9.3
+        Only render when a rating value is available
       */}
-      <Text style={styles.rating}>★ {rating}</Text>
+      {rating !== undefined ? (
+        <Text style={styles.rating}>★ {rating}</Text>
+      ) : null}
     </View>
   );
 }
