@@ -91,11 +91,6 @@ const styles = StyleSheet.create({
     fontSize: 32,
     fontWeight: "600",
   },
-  squareIcon: {
-    width: 24,
-    height: 24,
-    backgroundColor: "#d6d6d6",
-  },
   avatar: {
     width: 132,
     height: 132,
