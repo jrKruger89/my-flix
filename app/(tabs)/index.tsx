@@ -1,6 +1,9 @@
 import { colors, fonts } from "@/constants/theme";
 import { Link } from "expo-router";
 import { StyleSheet, Text, View } from "react-native";
+import * as Font from "expo-font";
+import React, { useEffect, useState } from "react";
+import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
 
 /**
  * Home Screen (Index) - The landing page of the application
@@ -8,19 +11,130 @@ import { StyleSheet, Text, View } from "react-native";
  * Uses React Native components for cross-platform mobile UI
  */
 export default function Index() {
-  return (
-    // View: React Native container component (equivalent to div in web)
-    // Flexbox layout container that centers content both vertically and horizontally
-    <View style={styles.container}>
-      {/* Text: React Native component for displaying text content */}
-      <Text style={styles.text}>Home screen</Text>
+  const [fontsLoaded, setFontsLoaded] = useState(false);
 
-      {/* Link: Navigation component from expo-router for declarative navigation */}
-      {/* Creates a pressable link that navigates to /about when pressed */}
-      <Link href="/about" style={styles.button}>
-        Go to About screen
-      </Link>
-    </View>
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadFonts = async () => {
+      await Font.loadAsync({
+        K2D: require("../../assets/fonts/K2D-Regular.ttf"),
+      });
+      if (isMounted) {
+        setFontsLoaded(true);
+      }
+    };
+
+    loadFonts();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  if (!fontsLoaded) {
+    return <Text>Loading...</Text>;
+  }
+  return (
+    <ScrollView>
+      <View style={styles.container}>
+        <Text style={styles.rowTitle}>Currently Watching</Text>
+        <ScrollView horizontal={true} contentContainerStyle={styles.scrollRow}>
+          <View>
+            <Image
+              source={{ uri: "https://thispersondoesnotexist.com/" }}
+              style={styles.image}
+            />
+            <Text style={styles.movieTitle}>Movie Title</Text>
+          </View>
+          <View>
+            <Image
+              source={{ uri: "https://thispersondoesnotexist.com/" }}
+              style={styles.image}
+            />
+            <Text style={styles.movieTitle}>Movie Title</Text>
+          </View>
+          <View>
+            <Image
+              source={{ uri: "https://thispersondoesnotexist.com/" }}
+              style={styles.image}
+            />
+            <Text style={styles.movieTitle}>Movie Title</Text>
+          </View>
+          <View>
+            <Image
+              source={{ uri: "https://thispersondoesnotexist.com/" }}
+              style={styles.image}
+            />
+            <Text style={styles.movieTitle}>Movie Title</Text>
+          </View>
+        </ScrollView>
+
+        <Text style={styles.rowTitle}>Watchlist</Text>
+        <ScrollView horizontal={true} contentContainerStyle={styles.scrollRow}>
+          <View>
+            <Image
+              source={{ uri: "https://thispersondoesnotexist.com/" }}
+              style={styles.image}
+            />
+            <Text style={styles.movieTitle}>Movie Title</Text>
+          </View>
+          <View>
+            <Image
+              source={{ uri: "https://thispersondoesnotexist.com/" }}
+              style={styles.image}
+            />
+            <Text style={styles.movieTitle}>Movie Title</Text>
+          </View>
+          <View>
+            <Image
+              source={{ uri: "https://thispersondoesnotexist.com/" }}
+              style={styles.image}
+            />
+            <Text style={styles.movieTitle}>Movie Title</Text>
+          </View>
+          <View>
+            <Image
+              source={{ uri: "https://thispersondoesnotexist.com/" }}
+              style={styles.image}
+            />
+            <Text style={styles.movieTitle}>Movie Title</Text>
+          </View>
+        </ScrollView>
+
+        <Text style={styles.rowTitle}>Recommended</Text>
+        <ScrollView horizontal={true} contentContainerStyle={styles.scrollRow}>
+          <View>
+            <Image
+              source={{ uri: "https://thispersondoesnotexist.com/" }}
+              style={styles.image}
+            />
+            <Text style={styles.movieTitle}>Movie Title</Text>
+          </View>
+          <View>
+            <Image
+              source={{ uri: "https://thispersondoesnotexist.com/" }}
+              style={styles.image}
+            />
+            <Text style={styles.movieTitle}>Movie Title</Text>
+          </View>
+          <View>
+            <Image
+              source={{ uri: "https://thispersondoesnotexist.com/" }}
+              style={styles.image}
+            />
+            <Text style={styles.movieTitle}>Movie Title</Text>
+          </View>
+          <View>
+            <Image
+              source={{ uri: "https://thispersondoesnotexist.com/" }}
+              style={styles.image}
+            />
+            <Text style={styles.movieTitle}>Movie Title</Text>
+          </View>
+        </ScrollView>
+      </View>
+    </ScrollView>
   );
 }
 
@@ -29,22 +143,30 @@ export default function Index() {
 const styles = StyleSheet.create({
   // container: Main view container styles
   container: {
-    flex: 1, // Takes up all available space (full screen height)
-    backgroundColor: colors.bgColor, // Dark background (#202040)
-    alignItems: "center", // Horizontally center children
-    justifyContent: "center", // Vertically center children
+    flex: 1,
+    backgroundColor: "#25292e",
+    padding: 10,
   },
-
-  // text: Typography styling for the heading text
-  text: {
-    fontFamily: fonts.regular, // Uses K2D-Regular font from theme constants
-    color: colors.txtColor, // Light text color (#F0F0F0) for readability on dark background
+  rowTitle: {
+    color: "#fff",
+    fontSize: 20,
+    marginVertical: 10,
+    fontFamily: "K2D",
   },
-
-  // button: Styling for the navigation link
-  button: {
-    fontSize: 20, // Larger text size for prominent link
-    textDecorationLine: "underline", // Underline to indicate it's clickable
-    color: colors.txtColor, // Light text color (#F0F0F0)
+  movieTitle: {
+    color: "#fff",
+    fontSize: 15,
+    marginVertical: 10,
+    fontFamily: "K2D",
+  },
+  scrollRow: {
+    flexDirection: "row",
+    paddingVertical: 10,
+  },
+  image: {
+    width: 100,
+    height: 130,
+    borderRadius: 10,
+    marginHorizontal: 10,
   },
 });

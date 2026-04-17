@@ -41,10 +41,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index" // Route name corresponds to index.tsx file
         options={{
-          title: "Home", // Text displayed under the tab icon
-
-          // tabBarIcon: Renders the icon for this tab
-          // Receives color (active/inactive) and focused state as props
+          title: "My Flix",
           tabBarIcon: ({ color, focused }) => (
             // Ionicons: Icon library from @expo/vector-icons
             // Provides Material Design and Ionicons icons as React components
