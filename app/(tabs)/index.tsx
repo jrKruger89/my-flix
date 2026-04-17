@@ -1,14 +1,132 @@
-import { Link } from "expo-router";
-import { StyleSheet, Text, View } from "react-native";
+import * as Font from "expo-font";
+import React, { useEffect, useState } from "react";
+import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
 
 export default function Index() {
+  const [fontsLoaded, setFontsLoaded] = useState(false);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadFonts = async () => {
+      await Font.loadAsync({
+        K2D: require("../../assets/fonts/K2D-Regular.ttf"),
+      });
+      if (isMounted) {
+        setFontsLoaded(true);
+      }
+    };
+
+    loadFonts();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  if (!fontsLoaded) {
+    return <Text>Loading...</Text>;
+  }
   return (
-    <View style={styles.container}>
-      <Text style={styles.text}>Home screen</Text>
-      <Link href="/about" style={styles.button}>
-        Go to About screen
-      </Link>
-    </View>
+    <ScrollView>
+      <View style={styles.container}>
+        <Text style={styles.rowTitle}>Currently Watching</Text>
+        <ScrollView horizontal={true} contentContainerStyle={styles.scrollRow}>
+          <View>
+            <Image
+              source={{ uri: "https://thispersondoesnotexist.com/" }}
+              style={styles.image}
+            />
+            <Text style={styles.movieTitle}>Movie Title</Text>
+          </View>
+          <View>
+            <Image
+              source={{ uri: "https://thispersondoesnotexist.com/" }}
+              style={styles.image}
+            />
+            <Text style={styles.movieTitle}>Movie Title</Text>
+          </View>
+          <View>
+            <Image
+              source={{ uri: "https://thispersondoesnotexist.com/" }}
+              style={styles.image}
+            />
+            <Text style={styles.movieTitle}>Movie Title</Text>
+          </View>
+          <View>
+            <Image
+              source={{ uri: "https://thispersondoesnotexist.com/" }}
+              style={styles.image}
+            />
+            <Text style={styles.movieTitle}>Movie Title</Text>
+          </View>
+        </ScrollView>
+
+        <Text style={styles.rowTitle}>Watchlist</Text>
+        <ScrollView horizontal={true} contentContainerStyle={styles.scrollRow}>
+          <View>
+            <Image
+              source={{ uri: "https://thispersondoesnotexist.com/" }}
+              style={styles.image}
+            />
+            <Text style={styles.movieTitle}>Movie Title</Text>
+          </View>
+          <View>
+            <Image
+              source={{ uri: "https://thispersondoesnotexist.com/" }}
+              style={styles.image}
+            />
+            <Text style={styles.movieTitle}>Movie Title</Text>
+          </View>
+          <View>
+            <Image
+              source={{ uri: "https://thispersondoesnotexist.com/" }}
+              style={styles.image}
+            />
+            <Text style={styles.movieTitle}>Movie Title</Text>
+          </View>
+          <View>
+            <Image
+              source={{ uri: "https://thispersondoesnotexist.com/" }}
+              style={styles.image}
+            />
+            <Text style={styles.movieTitle}>Movie Title</Text>
+          </View>
+        </ScrollView>
+
+        <Text style={styles.rowTitle}>Recommended</Text>
+        <ScrollView horizontal={true} contentContainerStyle={styles.scrollRow}>
+          <View>
+            <Image
+              source={{ uri: "https://thispersondoesnotexist.com/" }}
+              style={styles.image}
+            />
+            <Text style={styles.movieTitle}>Movie Title</Text>
+          </View>
+          <View>
+            <Image
+              source={{ uri: "https://thispersondoesnotexist.com/" }}
+              style={styles.image}
+            />
+            <Text style={styles.movieTitle}>Movie Title</Text>
+          </View>
+          <View>
+            <Image
+              source={{ uri: "https://thispersondoesnotexist.com/" }}
+              style={styles.image}
+            />
+            <Text style={styles.movieTitle}>Movie Title</Text>
+          </View>
+          <View>
+            <Image
+              source={{ uri: "https://thispersondoesnotexist.com/" }}
+              style={styles.image}
+            />
+            <Text style={styles.movieTitle}>Movie Title</Text>
+          </View>
+        </ScrollView>
+      </View>
+    </ScrollView>
   );
 }
 
@@ -16,15 +134,28 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#25292e",
-    alignItems: "center",
-    justifyContent: "center",
+    padding: 10,
   },
-  text: {
+  rowTitle: {
     color: "#fff",
-  },
-  button: {
     fontSize: 20,
-    textDecorationLine: "underline",
+    marginVertical: 10,
+    fontFamily: "K2D",
+  },
+  movieTitle: {
     color: "#fff",
+    fontSize: 15,
+    marginVertical: 10,
+    fontFamily: "K2D",
+  },
+  scrollRow: {
+    flexDirection: "row",
+    paddingVertical: 10,
+  },
+  image: {
+    width: 100,
+    height: 130,
+    borderRadius: 10,
+    marginHorizontal: 10,
   },
 });
