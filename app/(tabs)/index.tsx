@@ -1,6 +1,3 @@
-import { colors, fonts } from "@/constants/theme";
-import { Link } from "expo-router";
-import { StyleSheet, Text, View } from "react-native";
 import * as Font from "expo-font";
 import React, { useEffect, useState } from "react";
 import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
