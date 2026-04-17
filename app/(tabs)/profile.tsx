@@ -133,7 +133,6 @@ const styles = StyleSheet.create({
     color: "#F0F0F0",
     fontSize: 20,
     fontWeight: "400",
-    fontFamily: "K2D_400Regular",
   },
   logoutButton: {
     marginTop: "auto",
