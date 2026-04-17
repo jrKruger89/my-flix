@@ -61,6 +61,8 @@ export default function LoginScreen() {
           keyboardType="email-address"
           placeholder="Enter your Email here"
           placeholderTextColor="#9d9daf"
+          accessibilityLabel="Email address"
+          accessibilityHint="Enter the email address you use to sign in"
         />
         {!!emailError && <Text style={styles.errorText}>{emailError}</Text>}
 
@@ -72,6 +74,8 @@ export default function LoginScreen() {
           secureTextEntry
           placeholder="Enter your password here"
           placeholderTextColor="#9d9daf"
+          accessibilityLabel="Password"
+          accessibilityHint="Enter your account password"
         />
         {!!passwordError && (
           <Text style={styles.errorText}>{passwordError}</Text>
@@ -85,7 +89,11 @@ export default function LoginScreen() {
         </Text>
       </View>
 
-      <Pressable style={styles.button} onPress={validateAndSubmit}>
+      <Pressable
+        style={styles.button}
+        onPress={validateAndSubmit}
+        accessibilityRole="button"
+      >
         <Text style={styles.buttonText}>Sign in</Text>
       </Pressable>
     </LinearGradient>
