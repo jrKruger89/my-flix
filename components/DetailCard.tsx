@@ -53,15 +53,17 @@ export default function DetailCard({
       {/* 
         Title text: Large, prominent heading for the media name
         Uses K2D-Regular font from theme for consistency
+        Only renders when a title is available to avoid displaying undefined
       */}
-      <Text style={styles.title}>{title}</Text>
+      {title && <Text style={styles.title}>{title}</Text>}
 
       {/* 
         Rating display: Shows numeric rating with star emoji
         Uses accent color (purple #B030B0) to stand out
         Format: ★ 9.3/10
+        Only renders when rating data is available
       */}
-      <Text style={styles.rating}>★ {rating}/10</Text>
+      {rating !== undefined && <Text style={styles.rating}>★ {rating}/10</Text>}
 
       {/* 
         Conditional rendering: Display play time only if it exists
