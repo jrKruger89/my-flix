@@ -1,67 +1,108 @@
 import MediaCard from "@/components/MediaCard";
 import { colors } from "@/constants/theme";
-import { mockMediaEntries } from "@/data/mockMedia";
+import { MediaItem, transformTMDBToMedia } from "@/services/formatMedia";
+import { getPopularMovies } from "@/services/tmdbApi";
 import { useRouter } from "expo-router";
-import { FlatList, Pressable, StyleSheet, View } from "react-native";
+import { useEffect, useState } from "react";
+import {
+  ActivityIndicator,
+  FlatList,
+  Pressable,
+  StyleSheet,
+  View,
+} from "react-native";
 
 /**
  * Media Screen - Displays a grid of media items (movies)
- * Shows movies in a 2-column grid layout with tap-to-navigate functionality
- * Uses FlatList for efficient rendering of large lists of media items
+ * Fetches movies from TMDB API and shows them in a 2-column grid layout
  */
 export default function MediaScreen() {
-  // useRouter hook: Returns navigation router instance from expo-router
-  // Allows programmatic navigation using router.push(route)
   const router = useRouter();
 
-  // Convert mock data object (keyed by property names) into array
-  // FlatList requires an array, so Object.values() extracts just the movie objects
-  // Example: { movie1: {...}, movie2: {...} } => [{...}, {...}]
-  const mediaArray = Object.values(mockMediaEntries);
+  // State for storing fetched movies
+  const [mediaArray, setMediaArray] = useState<MediaItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   /**
-   * handleMediaPress - Handler function for when a media card is pressed
-   * Uses router.push() for navigation to the detail page with dynamic route
+   * useEffect: Fetch media data when component mounts
+   * Calls TMDB API to get popular movies and transforms them to our format
+   */
+  useEffect(() => {
+    loadMediaData();
+  }, []);
+
+  /**
+   * loadMediaData - Fetches movies from TMDB API
+   * Transforms TMDB format to our MediaItem format
+   * Handles loading and error states
+   */
+  async function loadMediaData() {
+    try {
+      setLoading(true);
+      setError(null);
+
+      // Fetch popular movies from TMDB (page 1)
+      const data = await getPopularMovies(1);
+
+      // Transform TMDB format to our app's format
+      const transformed = data.results.map(transformTMDBToMedia);
+
+      // Update state with transformed movies
+      setMediaArray(transformed);
+    } catch (err) {
+      // Handle errors (network issues, API errors, etc.)
+      console.error("Failed to fetch movies:", err);
+      setError("Failed to load movies. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  /**
+   * handleMediaPress - Navigate to detail screen when card is pressed
    * @param id {string} - The unique identifier of the selected media item
    */
   const handleMediaPress = (id: string) => {
-    // Push new screen to navigation stack with ID as URL parameter
-    // Navigates to /details/1, /details/2, etc. based on selected item
     router.push(`/details/${id}`);
   };
 
+  // Show loading spinner while fetching
+  if (loading) {
+    return (
+      <View style={[styles.container, styles.centerContent]}>
+        <ActivityIndicator size="large" color={colors.accent1} />
+      </View>
+    );
+  }
+
+  // Show error message if fetch failed
+  if (error) {
+    return (
+      <View style={[styles.container, styles.centerContent]}>
+        {/* You could also show a retry button here */}
+      </View>
+    );
+  }
+
   return (
-    // View: Root container for the entire media grid screen
     <View style={styles.container}>
-      {/* 
-        FlatList: Efficient list component from React Native
-        Renders large lists with virtual scrolling (only renders visible items)
-        Perfect for grids when combined with numColumns prop
-      */}
       <FlatList
-        data={mediaArray} // Array of media items to render
-        numColumns={2} // Display 2 items per row (creates grid)
-        keyExtractor={(item) => item.id} // Unique key for each list item
-        columnWrapperStyle={styles.row} // Styling for row container
-        contentContainerStyle={styles.listContent} // Styling for list content area
-        // renderItem: Function that renders each item in the list
-        // Receives { item, index } in the parameter object
+        data={mediaArray}
+        numColumns={2}
+        keyExtractor={(item) => item.id}
+        columnWrapperStyle={styles.row}
+        contentContainerStyle={styles.listContent}
         renderItem={({ item }) => (
-          // Pressable: Touch-responsive wrapper component
-          // Detects tap/press interactions and triggers onPress callback
           <Pressable
-            onPress={() => handleMediaPress(item.id)} // Navigate when pressed
-            style={styles.cardWrapper} // Size wrapper for grid layout
+            onPress={() => handleMediaPress(item.id)}
+            style={styles.cardWrapper}
           >
-            {/* 
-              MediaCard: Reusable card component displaying movie info
-              Shows poster image, title, and rating in compact format
-            */}
             <MediaCard
-              id={item.id} // Movie unique identifier
-              title={item.title} // Movie title text
-              poster={item.poster} // Movie poster image URL
-              rating={item.rating} // Movie rating number
+              id={item.id}
+              title={item.title}
+              poster={item.poster}
+              rating={item.rating}
             />
           </Pressable>
         )}
@@ -70,30 +111,28 @@ export default function MediaScreen() {
   );
 }
 
-// StyleSheet: Optimized style definitions for media screen
+// StyleSheet: Added centerContent for loading/error states
 const styles = StyleSheet.create({
-  // container: Main screen container
-  // Fills entire available space with dark background
   container: {
-    flex: 1, // Take up all available vertical space
-    backgroundColor: colors.bgColor, // Dark background (#202040)
+    flex: 1,
+    backgroundColor: colors.bgColor,
   },
 
-  // listContent: Padding around the entire FlatList content
-  // Adds 16 units of space on all sides (top, right, bottom, left)
+  // New: Center content for loading/error states
+  centerContent: {
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
   listContent: {
     padding: 16,
   },
 
-  // row: Styling for the horizontal row wrapper of each pair of items
-  // Distributes items evenly with space between them
   row: {
-    justifyContent: "space-between", // Equal space between left and right cards
+    justifyContent: "space-between",
   },
 
-  // cardWrapper: Container for each media card in the grid
-  // Uses 48% width (2 items fit with space between)
   cardWrapper: {
-    width: "48%", // Each card takes ~48% width, leaving ~4% gap between
+    width: "48%",
   },
 });

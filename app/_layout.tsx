@@ -52,9 +52,10 @@ export default function RootLayout() {
         name="(tabs)"
         options={{ headerShown: false }} // Hide default header - managed by Tab navigator
       />
-    <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="(auth)" />
-      <Stack.Screen name="(tabs)" />
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="(auth)" />
+        <Stack.Screen name="(tabs)" />
+      </Stack>
     </Stack>
   );
 }
