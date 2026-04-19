@@ -30,8 +30,13 @@ export default function AuthProvider({ children }: PropsWithChildren) {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (_event, _session) => {
       console.log("Auth state changed:", { event: _event });
-      const { data } = await supabase.auth.getClaims();
-      setClaims(data?.claims ?? null);
+
+      if (!_session) {
+        setClaims(null);
+      } else {
+        const { data } = await supabase.auth.getClaims();
+        setClaims(data?.claims ?? null);
+      }
     });
 
     // Cleanup subscription on unmount
