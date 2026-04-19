@@ -1,3 +1,6 @@
+import { SplashScreenController } from "@/components/splash-screen-controller";
+import { useAuthContext } from "@/hooks/use-auth-context";
+import AuthProvider from "@/providers/auth-provider";
 import {
   K2D_400Regular,
   K2D_600SemiBold,
@@ -11,6 +14,22 @@ import { useEffect } from "react";
 // Prevent the splash screen from automatically hiding while fonts load
 // This ensures a smooth UX while custom fonts are being fetched
 SplashScreen.preventAutoHideAsync();
+
+function RootNavigator() {
+  const { isLoggedIn } = useAuthContext();
+
+  return (
+    <Stack>
+      <Stack.Protected guard={isLoggedIn}>
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+      </Stack.Protected>
+      <Stack.Protected guard={!isLoggedIn}>
+        <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+      </Stack.Protected>
+      <Stack.Screen name="+not-found" />
+    </Stack>
+  );
+}
 
 /**
  * RootLayout - The root navigation component for the entire application
@@ -46,16 +65,9 @@ export default function RootLayout() {
   // Stack: Navigation container from expo-router that manages screen transitions
   // Creates a navigation stack where screens can be pushed/popped
   return (
-    <Stack>
-      {/* Stack.Screen: Defines the (tabs) group as the initial/root route */}
-      <Stack.Screen
-        name="(tabs)"
-        options={{ headerShown: false }} // Hide default header - managed by Tab navigator
-      />
-      <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="(auth)" />
-        <Stack.Screen name="(tabs)" />
-      </Stack>
-    </Stack>
+    <AuthProvider>
+      <SplashScreenController />
+      <RootNavigator />
+    </AuthProvider>
   );
 }
