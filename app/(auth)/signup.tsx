@@ -59,6 +59,7 @@ export default function SignupScreen() {
         },
       },
     });
+
     setIsLoading(false);
 
     if (signUpError) {
@@ -72,7 +73,10 @@ export default function SignupScreen() {
         .upsert({ id: data.user.id, username: trimmedUsername });
 
       if (profileError) {
+        console.error("Profile insert error:", profileError);
         setUsernameError("Failed to create profile");
+      } else {
+        console.log("Profile created successfully");
       }
     }
   }
