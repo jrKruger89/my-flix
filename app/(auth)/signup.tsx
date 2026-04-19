@@ -53,7 +53,13 @@ export default function SignupScreen() {
     const { data, error: signUpError } = await supabase.auth.signUp({
       email: trimmedEmail,
       password,
+      options: {
+        data: {
+          displayName: trimmedUsername,
+        },
+      },
     });
+
     setIsLoading(false);
 
     if (signUpError) {
@@ -67,7 +73,10 @@ export default function SignupScreen() {
         .upsert({ id: data.user.id, username: trimmedUsername });
 
       if (profileError) {
+        console.error("Profile insert error:", profileError);
         setUsernameError("Failed to create profile");
+      } else {
+        console.log("Profile created successfully");
       }
     }
   }

@@ -1,3 +1,4 @@
+import SignOutButton from "@/components/social-auth-buttons/sign-out-button";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { LinearGradient } from "expo-linear-gradient";
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
@@ -63,9 +64,7 @@ export default function ProfileScreen() {
         ))}
       </View>
 
-      <Pressable style={styles.logoutButton}>
-        <Text style={styles.logoutText}>Log Out</Text>
-      </Pressable>
+      <SignOutButton />
     </LinearGradient>
   );
 }
