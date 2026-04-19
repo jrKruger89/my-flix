@@ -1,5 +1,6 @@
+import { supabase } from "@/lib/supabase";
 import { LinearGradient } from "expo-linear-gradient";
-import { Link, router } from "expo-router";
+import { Link } from "expo-router";
 import { useState } from "react";
 import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 
@@ -9,8 +10,9 @@ export default function LoginScreen() {
 
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  function validateAndSubmit() {
+  async function validateAndSubmit() {
     let isValid = true;
     setEmailError("");
     setPasswordError("");
@@ -35,8 +37,16 @@ export default function LoginScreen() {
 
     if (!isValid) return;
 
-    // Temporary behavior until backend auth exists
-    router.replace("/(tabs)");
+    setIsLoading(true);
+    const { error } = await supabase.auth.signInWithPassword({
+      email: trimmedEmail,
+      password,
+    });
+    setIsLoading(false);
+
+    if (error) {
+      setEmailError(error.message);
+    }
   }
 
   return (
@@ -90,11 +100,14 @@ export default function LoginScreen() {
       </View>
 
       <Pressable
-        style={styles.button}
+        style={[styles.button, isLoading && { opacity: 0.6 }]}
         onPress={validateAndSubmit}
+        disabled={isLoading}
         accessibilityRole="button"
       >
-        <Text style={styles.buttonText}>Sign in</Text>
+        <Text style={styles.buttonText}>
+          {isLoading ? "Signing in..." : "Sign in"}
+        </Text>
       </Pressable>
     </LinearGradient>
   );
