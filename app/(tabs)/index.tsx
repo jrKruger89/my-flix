@@ -1,7 +1,7 @@
 import * as Font from "expo-font";
+import { LinearGradient } from "expo-linear-gradient";
 import React, { useEffect, useState } from "react";
 import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
-
 /**
  * Home Screen (Index) - The landing page of the application
  * Displays welcome content and provides navigation to other screens
@@ -33,105 +33,121 @@ export default function Index() {
     return <Text>Loading...</Text>;
   }
   return (
-    <ScrollView>
-      <View style={styles.container}>
-        <Text style={styles.rowTitle}>Currently Watching</Text>
-        <ScrollView horizontal={true} contentContainerStyle={styles.scrollRow}>
-          <View>
-            <Image
-              source={{ uri: "https://thispersondoesnotexist.com/" }}
-              style={styles.image}
-            />
-            <Text style={styles.movieTitle}>Movie Title</Text>
-          </View>
-          <View>
-            <Image
-              source={{ uri: "https://thispersondoesnotexist.com/" }}
-              style={styles.image}
-            />
-            <Text style={styles.movieTitle}>Movie Title</Text>
-          </View>
-          <View>
-            <Image
-              source={{ uri: "https://thispersondoesnotexist.com/" }}
-              style={styles.image}
-            />
-            <Text style={styles.movieTitle}>Movie Title</Text>
-          </View>
-          <View>
-            <Image
-              source={{ uri: "https://thispersondoesnotexist.com/" }}
-              style={styles.image}
-            />
-            <Text style={styles.movieTitle}>Movie Title</Text>
-          </View>
-        </ScrollView>
+    <LinearGradient
+      colors={["#171739", "#3b1f63", "#16193a"]}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
+      style={styles.container}
+    >
+      <ScrollView>
+        <View style={styles.container}>
+          <Text style={styles.rowTitle}>Currently Watching</Text>
+          <ScrollView
+            horizontal={true}
+            contentContainerStyle={styles.scrollRow}
+          >
+            <View>
+              <Image
+                source={{ uri: "https://thispersondoesnotexist.com/" }}
+                style={styles.image}
+              />
+              <Text style={styles.movieTitle}>Movie Title</Text>
+            </View>
+            <View>
+              <Image
+                source={{ uri: "https://thispersondoesnotexist.com/" }}
+                style={styles.image}
+              />
+              <Text style={styles.movieTitle}>Movie Title</Text>
+            </View>
+            <View>
+              <Image
+                source={{ uri: "https://thispersondoesnotexist.com/" }}
+                style={styles.image}
+              />
+              <Text style={styles.movieTitle}>Movie Title</Text>
+            </View>
+            <View>
+              <Image
+                source={{ uri: "https://thispersondoesnotexist.com/" }}
+                style={styles.image}
+              />
+              <Text style={styles.movieTitle}>Movie Title</Text>
+            </View>
+          </ScrollView>
 
-        <Text style={styles.rowTitle}>Watchlist</Text>
-        <ScrollView horizontal={true} contentContainerStyle={styles.scrollRow}>
-          <View>
-            <Image
-              source={{ uri: "https://thispersondoesnotexist.com/" }}
-              style={styles.image}
-            />
-            <Text style={styles.movieTitle}>Movie Title</Text>
-          </View>
-          <View>
-            <Image
-              source={{ uri: "https://thispersondoesnotexist.com/" }}
-              style={styles.image}
-            />
-            <Text style={styles.movieTitle}>Movie Title</Text>
-          </View>
-          <View>
-            <Image
-              source={{ uri: "https://thispersondoesnotexist.com/" }}
-              style={styles.image}
-            />
-            <Text style={styles.movieTitle}>Movie Title</Text>
-          </View>
-          <View>
-            <Image
-              source={{ uri: "https://thispersondoesnotexist.com/" }}
-              style={styles.image}
-            />
-            <Text style={styles.movieTitle}>Movie Title</Text>
-          </View>
-        </ScrollView>
+          <Text style={styles.rowTitle}>Watchlist</Text>
+          <ScrollView
+            horizontal={true}
+            contentContainerStyle={styles.scrollRow}
+          >
+            <View>
+              <Image
+                source={{ uri: "https://thispersondoesnotexist.com/" }}
+                style={styles.image}
+              />
+              <Text style={styles.movieTitle}>Movie Title</Text>
+            </View>
+            <View>
+              <Image
+                source={{ uri: "https://thispersondoesnotexist.com/" }}
+                style={styles.image}
+              />
+              <Text style={styles.movieTitle}>Movie Title</Text>
+            </View>
+            <View>
+              <Image
+                source={{ uri: "https://thispersondoesnotexist.com/" }}
+                style={styles.image}
+              />
+              <Text style={styles.movieTitle}>Movie Title</Text>
+            </View>
+            <View>
+              <Image
+                source={{ uri: "https://thispersondoesnotexist.com/" }}
+                style={styles.image}
+              />
+              <Text style={styles.movieTitle}>Movie Title</Text>
+            </View>
+          </ScrollView>
 
-        <Text style={styles.rowTitle}>Recommended</Text>
-        <ScrollView horizontal={true} contentContainerStyle={styles.scrollRow}>
-          <View>
-            <Image
-              source={{ uri: "https://thispersondoesnotexist.com/" }}
-              style={styles.image}
-            />
-            <Text style={styles.movieTitle}>Movie Title</Text>
-          </View>
-          <View>
-            <Image
-              source={{ uri: "https://thispersondoesnotexist.com/" }}
-              style={styles.image}
-            />
-            <Text style={styles.movieTitle}>Movie Title</Text>
-          </View>
-          <View>
-            <Image
-              source={{ uri: "https://thispersondoesnotexist.com/" }}
-              style={styles.image}
-            />
-            <Text style={styles.movieTitle}>Movie Title</Text>
-          </View>
-          <View>
-            <Image
-              source={{ uri: "https://thispersondoesnotexist.com/" }}
-              style={styles.image}
-            />
-            <Text style={styles.movieTitle}>Movie Title</Text>
-          </View>
-        </ScrollView>
-      </View>
-    </ScrollView>
+          <Text style={styles.rowTitle}>Recommended</Text>
+          <ScrollView
+            horizontal={true}
+            contentContainerStyle={styles.scrollRow}
+          >
+            <View>
+              <Image
+                source={{ uri: "https://thispersondoesnotexist.com/" }}
+                style={styles.image}
+              />
+              <Text style={styles.movieTitle}>Movie Title</Text>
+            </View>
+            <View>
+              <Image
+                source={{ uri: "https://thispersondoesnotexist.com/" }}
+                style={styles.image}
+              />
+              <Text style={styles.movieTitle}>Movie Title</Text>
+            </View>
+            <View>
+              <Image
+                source={{ uri: "https://thispersondoesnotexist.com/" }}
+                style={styles.image}
+              />
+              <Text style={styles.movieTitle}>Movie Title</Text>
+            </View>
+            <View>
+              <Image
+                source={{ uri: "https://thispersondoesnotexist.com/" }}
+                style={styles.image}
+              />
+              <Text style={styles.movieTitle}>Movie Title</Text>
+            </View>
+          </ScrollView>
+        </View>
+      </ScrollView>
+    </LinearGradient>
   );
 }
 
@@ -141,7 +157,6 @@ const styles = StyleSheet.create({
   // container: Main view container styles
   container: {
     flex: 1,
-    backgroundColor: "#25292e",
     padding: 10,
   },
   rowTitle: {
