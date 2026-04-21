@@ -39,7 +39,7 @@ export default function MediaCard({
       {poster ? (
         <Image
           source={{ uri: poster }}
-          style={styles.poster} // 200px height for grid view
+          style={[styles.poster, { resizeMode: "cover" }]} // 200px height for grid view
         />
       ) : null}
 
