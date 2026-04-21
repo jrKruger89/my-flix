@@ -1,8 +1,8 @@
 import MediaCard from "@/components/MediaCard";
+import { fonts } from "@/constants/theme";
 import { useMediaData } from "@/hooks/use-media-data";
-import * as Font from "expo-font";
 import { LinearGradient } from "expo-linear-gradient";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 /**
  * Home Screen (Index) - The landing page of the application
@@ -10,31 +10,7 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
  * Uses React Native components for cross-platform mobile UI
  */
 export default function Index() {
-  const [fontsLoaded, setFontsLoaded] = useState(false);
   const { mediaArray, loading, error, handleMediaPress } = useMediaData();
-
-  useEffect(() => {
-    let isMounted = true;
-
-    const loadFonts = async () => {
-      await Font.loadAsync({
-        K2D: require("../../assets/fonts/K2D-Regular.ttf"),
-      });
-      if (isMounted) {
-        setFontsLoaded(true);
-      }
-    };
-
-    loadFonts();
-
-    return () => {
-      isMounted = false;
-    };
-  }, []);
-
-  if (!fontsLoaded) {
-    return <Text>Loading...</Text>;
-  }
   return (
     <LinearGradient
       colors={["#171739", "#3b1f63", "#16193a"]}
@@ -53,14 +29,15 @@ export default function Index() {
               <Pressable
                 key={item.id}
                 onPress={() => handleMediaPress(item.id)}
-                style={styles.image}
               >
-                <MediaCard
-                  id={item.id}
-                  title={item.title}
-                  poster={item.poster}
-                  rating={item.rating}
-                />
+                <View style={styles.cardWrapper}>
+                  <MediaCard
+                    id={item.id}
+                    title={item.title}
+                    poster={item.poster}
+                    rating={item.rating}
+                  />
+                </View>
               </Pressable>
             ))}
           </ScrollView>
@@ -124,22 +101,29 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 20,
     marginVertical: 10,
-    fontFamily: "K2D",
+    fontFamily: fonts.regular,
   },
   movieTitle: {
     color: "#fff",
     fontSize: 15,
     marginVertical: 10,
-    fontFamily: "K2D",
+    fontFamily: fonts.regular,
   },
   scrollRow: {
     flexDirection: "row",
     paddingVertical: 10,
   },
-  image: {
-    width: 100,
-    height: 130,
-    borderRadius: 10,
+  // image: {
+  //   width: 140,
+  //   height: 200,
+  //   borderRadius: 10,
+  //   marginHorizontal: 10,
+  // },
+  cardWrapper: {
     marginHorizontal: 10,
+
+    borderRadius: 10,
+    overflow: "hidden",
+    width: 140,
   },
 });

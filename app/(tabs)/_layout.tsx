@@ -1,3 +1,4 @@
+import { colors } from "@/constants/theme";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { Tabs } from "expo-router";
 
@@ -20,7 +21,7 @@ export default function TabLayout() {
         // headerStyle: Customizes the header bar appearance at the top of each screen
         // Set dark background (#25292e) to match app theme
         headerStyle: {
-          backgroundColor: "#25292e",
+          backgroundColor: "#1B183D",
         },
 
         // headerShadowVisible: Removes default shadow under header for cleaner look
@@ -33,7 +34,7 @@ export default function TabLayout() {
         // tabBarStyle: Customizes the entire tab bar appearance
         // Matches header background for consistent dark theme
         tabBarStyle: {
-          backgroundColor: "#25292e",
+          backgroundColor: colors.accent2,
         },
       }}
     >
