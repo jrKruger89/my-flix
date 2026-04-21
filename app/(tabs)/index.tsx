@@ -1,9 +1,9 @@
-import MediaCard from "@/components/MediaCard";
+import MediaRow from "@/components/mediaRow";
 import { fonts } from "@/constants/theme";
 import { useMediaData } from "@/hooks/use-media-data";
 import { LinearGradient } from "expo-linear-gradient";
 import React from "react";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { ScrollView, StyleSheet, View } from "react-native";
 /**
  * Home Screen (Index) - The landing page of the application
  * Displays welcome content and provides navigation to other screens
@@ -20,69 +20,21 @@ export default function Index() {
     >
       <ScrollView>
         <View style={styles.container}>
-          <Text style={styles.rowTitle}>Currently Watching</Text>
-          <ScrollView
-            horizontal={true}
-            contentContainerStyle={styles.scrollRow}
-          >
-            {mediaArray.map((item) => (
-              <Pressable
-                key={item.id}
-                onPress={() => handleMediaPress(item.id)}
-              >
-                <View style={styles.cardWrapper}>
-                  <MediaCard
-                    id={item.id}
-                    title={item.title}
-                    poster={item.poster}
-                    rating={item.rating}
-                  />
-                </View>
-              </Pressable>
-            ))}
-          </ScrollView>
-
-          <Text style={styles.rowTitle}>Watchlist</Text>
-          <ScrollView
-            horizontal={true}
-            contentContainerStyle={styles.scrollRow}
-          >
-            {mediaArray.map((item) => (
-              <Pressable
-                key={item.id}
-                onPress={() => handleMediaPress(item.id)}
-                style={styles.image}
-              >
-                <MediaCard
-                  id={item.id}
-                  title={item.title}
-                  poster={item.poster}
-                  rating={item.rating}
-                />
-              </Pressable>
-            ))}
-          </ScrollView>
-
-          <Text style={styles.rowTitle}>Recommended</Text>
-          <ScrollView
-            horizontal={true}
-            contentContainerStyle={styles.scrollRow}
-          >
-            {mediaArray.map((item) => (
-              <Pressable
-                key={item.id}
-                onPress={() => handleMediaPress(item.id)}
-                style={styles.image}
-              >
-                <MediaCard
-                  id={item.id}
-                  title={item.title}
-                  poster={item.poster}
-                  rating={item.rating}
-                />
-              </Pressable>
-            ))}
-          </ScrollView>
+          <MediaRow
+            title="Currently Watching"
+            mediaArray={mediaArray}
+            handleMediaPress={handleMediaPress}
+          />
+          <MediaRow
+            title="Watchlist"
+            mediaArray={mediaArray}
+            handleMediaPress={handleMediaPress}
+          />
+          <MediaRow
+            title="Recommended"
+            mediaArray={mediaArray}
+            handleMediaPress={handleMediaPress}
+          />
         </View>
       </ScrollView>
     </LinearGradient>
