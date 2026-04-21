@@ -1,6 +1,7 @@
 import DetailCard from "@/components/DetailCard";
+import FavoriteButton from "@/components/FavoriteButton";
 import { MediaItem, transformTMDBToMedia } from "@/services/formatMedia";
-import { getMovieDetails } from "@/services/tmdbApi";
+import { getMovieDetails, getTVDetails } from "@/services/tmdbApi";
 import { useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import {
@@ -19,12 +20,14 @@ import {
 export default function DetailScreen() {
   // useLocalSearchParams hook: Extracts the movie ID parameter from URL (/details/123)
   // Returns { detail: "123" } where detail is the movie ID passed from navigation
-  const { detail } = useLocalSearchParams();
+  const { detail, type } = useLocalSearchParams();
 
   // State for storing fetched movie details
   const [movieData, setMovieData] = useState<MediaItem | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const mediaType = (type as "movie" | "tv") || "movie";
 
   /**
    * useEffect: Fetch movie details from TMDB API when component mounts or detail ID changes
@@ -35,27 +38,37 @@ export default function DetailScreen() {
     if (!detail) return;
 
     /**
-     * loadMovieDetails - Async function that fetches movie data from TMDB and transforms it
+     * loadMediaDetails - Async function that fetches movie data from TMDB and transforms it
      * 1. Converts the detail URL parameter (string) to a number for the API
      * 2. Calls getMovieDetails() with the movie ID (includes credits for cast/director)
      * 3. Transforms the TMDB response into our app's MediaItem format
      * 4. Updates state with the transformed data or error messages
      */
-    async function loadMovieDetails() {
+    async function loadMediaDetails() {
       try {
         setLoading(true);
         setError(null);
 
         // Convert detail parameter to number (URL params come as strings)
-        const movieId = parseInt(detail as string, 10);
+        const mediaId = parseInt(detail as string, 10);
 
-        // Fetch full movie details including credits (cast, director)
-        const tmdbMovie = await getMovieDetails(movieId);
+        let transformed: MediaItem | null = null; // Declare here
 
-        // Transform TMDB format to our app's format
-        const transformed = transformTMDBToMedia(tmdbMovie);
+        if (mediaType === "tv") {
+          // Fetch full show details including credits (cast, director)
+          const tmdbShow = await getTVDetails(mediaId);
 
-        // Update state with transformed movie data
+          // Transform TMDB format to our app's format
+          transformed = transformTMDBToMedia(tmdbShow);
+        } else {
+          // Fetch full movie details including credits (cast, director)
+          const tmdbMovie = await getMovieDetails(mediaId);
+
+          // Transform TMDB format to our app's format
+          transformed = transformTMDBToMedia(tmdbMovie);
+        }
+
+        // Now transformed is in scope
         setMovieData(transformed);
       } catch (err) {
         // Handle errors (network issues, invalid ID, API errors, etc.)
@@ -66,8 +79,8 @@ export default function DetailScreen() {
       }
     }
 
-    loadMovieDetails();
-  }, [detail]);
+    loadMediaDetails();
+  }, [detail, mediaType]); // Also add mediaType to dependency array
 
   // Show loading spinner while fetching
   if (loading) {
@@ -101,6 +114,14 @@ export default function DetailScreen() {
     <ScrollView style={styles.container}>
       {/* Spread operator passes all properties as individual props */}
       <DetailCard {...movieData} />
+      {movieData && (
+        <FavoriteButton
+          mediaId={parseInt(detail as string, 10)}
+          mediaType={mediaType}
+          title={movieData.title}
+          posterPath={movieData.poster}
+        />
+      )}
     </ScrollView>
   );
 }

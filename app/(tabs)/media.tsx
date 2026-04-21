@@ -1,7 +1,7 @@
 import MediaCard from "@/components/MediaCard";
 import { colors } from "@/constants/theme";
 import { MediaItem, transformTMDBToMedia } from "@/services/formatMedia";
-import { getPopularMovies } from "@/services/tmdbApi";
+import { getPopularMovies, getPopularTV } from "@/services/tmdbApi";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
@@ -9,65 +9,45 @@ import {
   FlatList,
   Pressable,
   StyleSheet,
+  Switch,
+  Text,
   View,
 } from "react-native";
 
-/**
- * Media Screen - Displays a grid of media items (movies)
- * Fetches movies from TMDB API and shows them in a 2-column grid layout
- */
 export default function MediaScreen() {
   const router = useRouter();
 
-  // State for storing fetched movies
   const [mediaArray, setMediaArray] = useState<MediaItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isShowingTV, setIsShowingTV] = useState(false); // New state
 
-  /**
-   * useEffect: Fetch media data when component mounts
-   * Calls TMDB API to get popular movies and transforms them to our format
-   */
   useEffect(() => {
     loadMediaData();
-  }, []);
+  }, [isShowingTV]); // Re-fetch when toggle changes
 
-  /**
-   * loadMediaData - Fetches movies from TMDB API
-   * Transforms TMDB format to our MediaItem format
-   * Handles loading and error states
-   */
   async function loadMediaData() {
     try {
       setLoading(true);
       setError(null);
 
-      // Fetch popular movies from TMDB (page 1)
-      const data = await getPopularMovies(1);
-
-      // Transform TMDB format to our app's format
+      const data = isShowingTV
+        ? await getPopularTV(1)
+        : await getPopularMovies(1);
       const transformed = data.results.map(transformTMDBToMedia);
-
-      // Update state with transformed movies
       setMediaArray(transformed);
     } catch (err) {
-      // Handle errors (network issues, API errors, etc.)
-      console.error("Failed to fetch movies:", err);
-      setError("Failed to load movies. Please try again.");
+      console.error("Failed to fetch media:", err);
+      setError("Failed to load media. Please try again.");
     } finally {
       setLoading(false);
     }
   }
 
-  /**
-   * handleMediaPress - Navigate to detail screen when card is pressed
-   * @param id {string} - The unique identifier of the selected media item
-   */
   const handleMediaPress = (id: string) => {
-    router.push(`/details/${id}`);
+    router.push(`/details/${id}?type=${isShowingTV ? "tv" : "movie"}`);
   };
 
-  // Show loading spinner while fetching
   if (loading) {
     return (
       <View style={[styles.container, styles.centerContent]}>
@@ -76,17 +56,28 @@ export default function MediaScreen() {
     );
   }
 
-  // Show error message if fetch failed
   if (error) {
     return (
       <View style={[styles.container, styles.centerContent]}>
-        {/* You could also show a retry button here */}
+        {/* Error handling */}
       </View>
     );
   }
 
   return (
     <View style={styles.container}>
+      {/* Toggle Switch */}
+      <View style={styles.toggleContainer}>
+        <Text style={styles.toggleLabel}>Movies</Text>
+        <Switch
+          value={isShowingTV}
+          onValueChange={setIsShowingTV}
+          trackColor={{ false: colors.accent1, true: colors.accent1 }}
+          thumbColor={colors.accent2}
+        />
+        <Text style={styles.toggleLabel}>TV Shows</Text>
+      </View>
+
       <FlatList
         data={mediaArray}
         numColumns={2}
@@ -111,27 +102,34 @@ export default function MediaScreen() {
   );
 }
 
-// StyleSheet: Added centerContent for loading/error states
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.bgColor,
   },
-
-  // New: Center content for loading/error states
   centerContent: {
     justifyContent: "center",
     alignItems: "center",
   },
-
+  toggleContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    paddingVertical: 16,
+    paddingHorizontal: 16,
+    gap: 12,
+  },
+  toggleLabel: {
+    color: colors.txtColor,
+    fontSize: 14,
+    fontWeight: "600",
+  },
   listContent: {
     padding: 16,
   },
-
   row: {
     justifyContent: "space-between",
   },
-
   cardWrapper: {
     width: "48%",
   },
