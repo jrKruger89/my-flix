@@ -30,7 +30,7 @@ export function useMediaData() {
   }
 
   const handleMediaPress = (id: string) => {
-    router.push(`/details/${id}`);
+    router.push(`/media/${id}?type=movie`);
   };
 
   return { mediaArray, loading, error, handleMediaPress };

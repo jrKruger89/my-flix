@@ -20,11 +20,11 @@ export default function MediaScreen() {
   const [mediaArray, setMediaArray] = useState<MediaItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [isShowingTV, setIsShowingTV] = useState(false); // New state
+  const [isShowingTV, setIsShowingTV] = useState(false);
 
   useEffect(() => {
     loadMediaData();
-  }, [isShowingTV]); // Re-fetch when toggle changes
+  }, [isShowingTV]);
 
   async function loadMediaData() {
     try {
@@ -45,7 +45,7 @@ export default function MediaScreen() {
   }
 
   const handleMediaPress = (id: string) => {
-    router.push(`/details/${id}?type=${isShowingTV ? "tv" : "movie"}`);
+    router.push(`/media/${id}?type=${isShowingTV ? "tv" : "movie"}`);
   };
 
   if (loading) {
@@ -66,7 +66,6 @@ export default function MediaScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Toggle Switch */}
       <View style={styles.toggleContainer}>
         <Text style={styles.toggleLabel}>Movies</Text>
         <Switch
