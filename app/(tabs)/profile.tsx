@@ -29,7 +29,7 @@ export default function ProfileScreen() {
       end={{ x: 1, y: 1 }}
       style={[styles.container, { paddingTop: insets.top }]}
     >
-      <ScrollView>
+      <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.headerRow}>
           <Pressable style={styles.iconButton}>
             <Ionicons name="arrow-back" size={22} color="#fff" />
