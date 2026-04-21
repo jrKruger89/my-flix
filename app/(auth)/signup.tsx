@@ -68,16 +68,8 @@ export default function SignupScreen() {
     }
 
     if (data.user) {
-      const { error: profileError } = await supabase
-        .from("profiles")
-        .upsert({ id: data.user.id, username: trimmedUsername });
-
-      if (profileError) {
-        console.error("Profile insert error:", profileError);
-        setUsernameError("Failed to create profile");
-      } else {
-        console.log("Profile created successfully");
-      }
+      // Profile is now created automatically by the trigger
+      console.log("User created successfully");
     }
   }
 
