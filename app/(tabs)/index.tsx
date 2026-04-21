@@ -1,5 +1,4 @@
 import MediaRow from "@/components/mediaRow";
-import { fonts } from "@/constants/theme";
 import { useMediaData } from "@/hooks/use-media-data";
 import { LinearGradient } from "expo-linear-gradient";
 import React from "react";
@@ -49,28 +48,6 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 10,
   },
-  rowTitle: {
-    color: "#fff",
-    fontSize: 20,
-    marginVertical: 10,
-    fontFamily: fonts.regular,
-  },
-  movieTitle: {
-    color: "#fff",
-    fontSize: 15,
-    marginVertical: 10,
-    fontFamily: fonts.regular,
-  },
-  scrollRow: {
-    flexDirection: "row",
-    paddingVertical: 10,
-  },
-  // image: {
-  //   width: 140,
-  //   height: 200,
-  //   borderRadius: 10,
-  //   marginHorizontal: 10,
-  // },
   cardWrapper: {
     marginHorizontal: 10,
 
