@@ -20,19 +20,6 @@ export default function DetailsLayout() {
         // Currently commented out - using default back button behavior
         // headerBackButtonDisplayMode: "minimal",
       }}
-    >
-      {/* 
-        Stack.Screen: Defines a route in the navigation stack
-        name="[detail]": Dynamic route parameter - matches [detail].tsx filename
-        The brackets indicate a dynamic segment that captures URL parameters
-        Example URLs: /details/1, /details/2 extract id "1" or "2"
-      */}
-      <Stack.Screen
-        name="[detail]"
-        options={{
-          title: "Details", // Header title shown at top of detail screen
-        }}
-      />
-    </Stack>
+    ></Stack>
   );
 }

@@ -75,26 +75,6 @@ export default function TabLayout() {
           ),
         }}
       />
-
-      {/* Third Tab Screen: About */}
-      <Tabs.Screen
-        name="about" // Route name corresponds to about.tsx file
-        options={{
-          title: "About", // Text displayed under the tab icon
-
-          // tabBarIcon: Renders information icon that changes based on focus state
-          tabBarIcon: ({ color, focused }) => (
-            <Ionicons
-              // information-circle (filled) for active, outline for inactive
-              name={
-                focused ? "information-circle" : "information-circle-outline"
-              }
-              color={color}
-              size={24}
-            />
-          ),
-        }}
-      />
       <Tabs.Screen
         name="profile"
         options={{

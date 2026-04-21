@@ -1,5 +1,6 @@
 import DetailCard from "@/components/DetailCard";
 import FavoriteButton from "@/components/FavoriteButton";
+import ReviewComponent from "@/components/ReviewComponent";
 import { MediaItem, transformTMDBToMedia } from "@/services/formatMedia";
 import { getMovieDetails, getTVDetails } from "@/services/tmdbApi";
 import { useLocalSearchParams } from "expo-router";
@@ -120,6 +121,12 @@ export default function DetailScreen() {
           mediaType={mediaType}
           title={movieData.title}
           posterPath={movieData.poster}
+        />
+      )}
+      {movieData && (
+        <ReviewComponent
+          mediaId={parseInt(detail as string, 10)}
+          mediaType={mediaType}
         />
       )}
     </ScrollView>
