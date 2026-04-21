@@ -1,7 +1,14 @@
 import SignOutButton from "@/components/social-auth-buttons/sign-out-button";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { LinearGradient } from "expo-linear-gradient";
-import { Image, Pressable, StyleSheet, Text, View } from "react-native";
+import {
+  Image,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const MENU_ITEMS = [
@@ -20,50 +27,52 @@ export default function ProfileScreen() {
       colors={["#171739", "#3b1f63", "#16193a"]}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
-      style={[styles.container, { paddingTop: insets.top + 24 }]}
+      style={[styles.container, { paddingTop: insets.top }]}
     >
-      <View style={styles.headerRow}>
-        <Pressable style={styles.iconButton}>
-          <Ionicons name="arrow-back" size={22} color="#fff" />
-        </Pressable>
+      <ScrollView>
+        <View style={styles.headerRow}>
+          <Pressable style={styles.iconButton}>
+            <Ionicons name="arrow-back" size={22} color="#fff" />
+          </Pressable>
 
-        <Text style={styles.headerTitle}>Profile</Text>
+          <Text style={styles.headerTitle}>Profile</Text>
 
-        <Pressable style={styles.settingsButton}>
-          <Ionicons name="settings-outline" size={22} color={"#fff"} />
-        </Pressable>
-      </View>
-
-      <Image
-        source={require("../../assets/images/MrBaggins.jpg")}
-        style={styles.avatar}
-      />
-
-      <Text style={styles.name}>Mr. Underhill</Text>
-
-      <View style={styles.statsRow}>
-        <View style={styles.statItem}>
-          <Ionicons name="people-outline" size={16} color={"#d7d7e6"} />
-          <Text style={styles.statLabel}>Reviews</Text>
+          <Pressable style={styles.settingsButton}>
+            <Ionicons name="settings-outline" size={22} color={"#fff"} />
+          </Pressable>
         </View>
-        <View style={styles.statItem}>
-          <Ionicons name="people-outline" size={16} color={"#d7d7e6"} />
-          <Text style={styles.statLabel}>Followers</Text>
-        </View>
-        <View style={styles.statItem}>
-          <Ionicons name="people-outline" size={16} color={"#d7d7e6"} />
-          <Text style={styles.statLabel}>Following</Text>
-        </View>
-      </View>
 
-      <View style={styles.menuBlock}>
-        {MENU_ITEMS.map((item) => (
-          <Text key={item} style={styles.menuText}>
-            {item}
-          </Text>
-        ))}
-      </View>
-      <SignOutButton />
+        <Image
+          source={require("../../assets/images/MrBaggins.jpg")}
+          style={styles.avatar}
+        />
+
+        <Text style={styles.name}>Mr. Underhill</Text>
+
+        <View style={styles.statsRow}>
+          <View style={styles.statItem}>
+            <Ionicons name="people-outline" size={16} color={"#d7d7e6"} />
+            <Text style={styles.statLabel}>Reviews</Text>
+          </View>
+          <View style={styles.statItem}>
+            <Ionicons name="people-outline" size={16} color={"#d7d7e6"} />
+            <Text style={styles.statLabel}>Followers</Text>
+          </View>
+          <View style={styles.statItem}>
+            <Ionicons name="people-outline" size={16} color={"#d7d7e6"} />
+            <Text style={styles.statLabel}>Following</Text>
+          </View>
+        </View>
+
+        <View style={styles.menuBlock}>
+          {MENU_ITEMS.map((item) => (
+            <Text key={item} style={styles.menuText}>
+              {item}
+            </Text>
+          ))}
+        </View>
+        <SignOutButton />
+      </ScrollView>
     </LinearGradient>
   );
 }
@@ -120,6 +129,7 @@ const styles = StyleSheet.create({
   },
   menuBlock: {
     marginTop: 48,
+    marginBottom: 32,
     gap: 18,
   },
   menuText: {
