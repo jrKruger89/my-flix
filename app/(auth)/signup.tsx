@@ -1,5 +1,6 @@
+import { supabase } from "@/lib/supabase";
 import { LinearGradient } from "expo-linear-gradient";
-import { Link, router } from "expo-router";
+import { Link } from "expo-router";
 import { useState } from "react";
 import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 
@@ -11,8 +12,9 @@ export default function SignupScreen() {
   const [usernameError, setUsernameError] = useState("");
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  function validateAndSubmit() {
+  async function validateAndSubmit() {
     let isValid = true;
     setEmailError("");
     setPasswordError("");
@@ -47,8 +49,28 @@ export default function SignupScreen() {
 
     if (!isValid) return;
 
-    // Temporary behavior until backend auth exists
-    router.replace("/(auth)/login");
+    setIsLoading(true);
+    const { data, error: signUpError } = await supabase.auth.signUp({
+      email: trimmedEmail,
+      password,
+      options: {
+        data: {
+          displayName: trimmedUsername,
+        },
+      },
+    });
+
+    setIsLoading(false);
+
+    if (signUpError) {
+      setEmailError(signUpError.message);
+      return;
+    }
+
+    if (data.user) {
+      // Profile is now created automatically by the trigger
+      console.log("User created successfully");
+    }
   }
 
   return (
@@ -117,11 +139,14 @@ export default function SignupScreen() {
       </View>
 
       <Pressable
-        style={styles.button}
+        style={[styles.button, isLoading && { opacity: 0.6 }]}
         onPress={validateAndSubmit}
+        disabled={isLoading}
         accessibilityRole="button"
       >
-        <Text style={styles.buttonText}>Sign up</Text>
+        <Text style={styles.buttonText}>
+          {isLoading ? "Creating account..." : "Sign up"}
+        </Text>
       </Pressable>
     </LinearGradient>
   );

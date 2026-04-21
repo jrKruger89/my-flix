@@ -16,6 +16,10 @@ interface DetailCardProps {
   director?: string[]; // Array of director names
   description?: string[]; // Array of description paragraphs
   playTime?: string; // Duration text (e.g., "142 minutes")
+  mediaType?: "movie" | "tv"; // Add this to differentiate
+  numberOfSeasons?: number; // TV only
+  numberOfEpisodes?: number; // TV only
+  network?: string; // TV only
 }
 
 /**
@@ -33,6 +37,10 @@ export default function DetailCard({
   director,
   description,
   playTime,
+  mediaType,
+  numberOfSeasons,
+  numberOfEpisodes,
+  network,
 }: DetailCardProps) {
   return (
     // View: Root container for all detail content
@@ -114,6 +122,28 @@ export default function DetailCard({
         Small, subtle styling so it doesn't distract from main content
       */}
       <Text style={styles.id}>ID: {id}</Text>
+
+      {/* 
+        Seasons: Displays number of seasons (TV only)
+        Conditional rendering: Only shows if numberOfSeasons is available
+      */}
+      {numberOfSeasons !== undefined && (
+        <Text style={styles.details}>Seasons: {numberOfSeasons}</Text>
+      )}
+
+      {/* 
+        Episodes: Displays number of episodes (TV only)
+        Conditional rendering: Only shows if numberOfEpisodes is available
+      */}
+      {numberOfEpisodes !== undefined && (
+        <Text style={styles.details}>Episodes: {numberOfEpisodes}</Text>
+      )}
+
+      {/* 
+        Network: Displays network name (TV only)
+        Conditional rendering: Only shows if network is available
+      */}
+      {network && <Text style={styles.details}>Network: {network}</Text>}
     </View>
   );
 }
