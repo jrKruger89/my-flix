@@ -62,6 +62,15 @@ export default function ProfileScreen() {
     return "User";
   }, [profile?.username, claims?.email]);
 
+  function goToHome() {
+    router.replace("/");
+  }
+
+  async function refreshProfileData() {
+    await Promise.all([loadFavorites(), loadReviews()]);
+    Alert.alert("Refreshed", "Profile data updated.");
+  }
+
   async function loadFavorites() {
     if (!userId) return;
     setLoadingFavorites(true);
@@ -193,14 +202,14 @@ export default function ProfileScreen() {
     >
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.headerRow}>
-          <Pressable style={styles.iconButton}>
+          <Pressable style={styles.iconButton} onPress={goToHome}>
             <Ionicons name="arrow-back" size={22} color="#fff" />
           </Pressable>
 
           <Text style={styles.headerTitle}>Profile</Text>
 
-          <Pressable style={styles.settingsButton}>
-            <Ionicons name="settings-outline" size={22} color={"#fff"} />
+          <Pressable style={styles.settingsButton} onPress={refreshProfileData}>
+            <Ionicons name="refresh-outline" size={22} color="#fff" />
           </Pressable>
         </View>
 
