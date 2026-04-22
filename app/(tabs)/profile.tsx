@@ -160,6 +160,7 @@ export default function ProfileScreen() {
       if (update.error) throw update.error;
 
       setAvatarUrl(publicUrl);
+      Alert.alert("Success", "Profile picture updated.");
     } catch (e: any) {
       console.error("Avatar upload failed:", e);
       Alert.alert("Avatar upload failed", e?.message || "Unknown error");
