@@ -1,4 +1,5 @@
 import MediaCard from "@/components/MediaCard";
+import { ScreenWrapper } from "@/components/ScreenWrapper";
 import { colors } from "@/constants/theme";
 import { MediaItem, transformTMDBToMedia } from "@/services/formatMedia";
 import { getPopularMovies, getPopularTV } from "@/services/tmdbApi";
@@ -66,37 +67,39 @@ export default function MediaScreen() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.toggleContainer}>
-        <Text style={styles.toggleLabel}>Movies</Text>
-        <Switch
-          value={isShowingTV}
-          onValueChange={setIsShowingTV}
-          trackColor={{ false: colors.accent1, true: colors.accent1 }}
-          thumbColor={colors.accent2}
-        />
-        <Text style={styles.toggleLabel}>TV Shows</Text>
-      </View>
+      <ScreenWrapper>
+        <View style={styles.toggleContainer}>
+          <Text style={styles.toggleLabel}>Movies</Text>
+          <Switch
+            value={isShowingTV}
+            onValueChange={setIsShowingTV}
+            trackColor={{ false: colors.accent1, true: colors.accent1 }}
+            thumbColor={colors.accent2}
+          />
+          <Text style={styles.toggleLabel}>TV Shows</Text>
+        </View>
 
-      <FlatList
-        data={mediaArray}
-        numColumns={2}
-        keyExtractor={(item) => item.id}
-        columnWrapperStyle={styles.row}
-        contentContainerStyle={styles.listContent}
-        renderItem={({ item }) => (
-          <Pressable
-            onPress={() => handleMediaPress(item.id)}
-            style={styles.cardWrapper}
-          >
-            <MediaCard
-              id={item.id}
-              title={item.title}
-              poster={item.poster}
-              rating={item.rating}
-            />
-          </Pressable>
-        )}
-      />
+        <FlatList
+          data={mediaArray}
+          numColumns={2}
+          keyExtractor={(item) => item.id}
+          columnWrapperStyle={styles.row}
+          contentContainerStyle={styles.listContent}
+          renderItem={({ item }) => (
+            <Pressable
+              onPress={() => handleMediaPress(item.id)}
+              style={styles.cardWrapper}
+            >
+              <MediaCard
+                id={item.id}
+                title={item.title}
+                poster={item.poster}
+                rating={item.rating}
+              />
+            </Pressable>
+          )}
+        />
+      </ScreenWrapper>
     </View>
   );
 }
