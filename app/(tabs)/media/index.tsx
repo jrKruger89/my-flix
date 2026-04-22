@@ -2,7 +2,7 @@ import MediaCard from "@/components/MediaCard";
 import { colors } from "@/constants/theme";
 import { MediaItem, transformTMDBToMedia } from "@/services/formatMedia";
 import { getPopularMovies, getPopularTV } from "@/services/tmdbApi";
-import { useRouter } from "expo-router";
+import { useFocusEffect, useRouter } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
@@ -21,6 +21,7 @@ export default function MediaScreen() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isShowingTV, setIsShowingTV] = useState(false);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   const loadMediaData = useCallback(async () => {
     try {
@@ -43,6 +44,12 @@ export default function MediaScreen() {
   useEffect(() => {
     loadMediaData();
   }, [loadMediaData]);
+
+  useFocusEffect(
+    useCallback(() => {
+      setRefreshTrigger((prev) => prev + 1);
+    }, []),
+  );
 
   const handleMediaPress = (id: string) => {
     router.push(`/media/${id}?type=${isShowingTV ? "tv" : "movie"}`);
@@ -93,6 +100,8 @@ export default function MediaScreen() {
               title={item.title}
               poster={item.poster}
               rating={item.rating}
+              mediaType={isShowingTV ? "tv" : "movie"}
+              refreshTrigger={refreshTrigger}
             />
           </Pressable>
         )}
