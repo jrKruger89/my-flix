@@ -3,7 +3,7 @@ import { colors } from "@/constants/theme";
 import { MediaItem, transformTMDBToMedia } from "@/services/formatMedia";
 import { getPopularMovies, getPopularTV } from "@/services/tmdbApi";
 import { useRouter } from "expo-router";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
@@ -20,13 +20,9 @@ export default function MediaScreen() {
   const [mediaArray, setMediaArray] = useState<MediaItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [isShowingTV, setIsShowingTV] = useState(false); // New state
+  const [isShowingTV, setIsShowingTV] = useState(false);
 
-  useEffect(() => {
-    loadMediaData();
-  }, [isShowingTV]); // Re-fetch when toggle changes
-
-  async function loadMediaData() {
+  const loadMediaData = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -42,10 +38,14 @@ export default function MediaScreen() {
     } finally {
       setLoading(false);
     }
-  }
+  }, [isShowingTV]);
+
+  useEffect(() => {
+    loadMediaData();
+  }, [loadMediaData]);
 
   const handleMediaPress = (id: string) => {
-    router.push(`/details/${id}?type=${isShowingTV ? "tv" : "movie"}`);
+    router.push(`/media/${id}?type=${isShowingTV ? "tv" : "movie"}`);
   };
 
   if (loading) {
@@ -66,7 +66,6 @@ export default function MediaScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Toggle Switch */}
       <View style={styles.toggleContainer}>
         <Text style={styles.toggleLabel}>Movies</Text>
         <Switch

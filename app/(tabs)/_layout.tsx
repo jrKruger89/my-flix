@@ -1,4 +1,3 @@
-import { colors } from "@/constants/theme";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { Tabs } from "expo-router";
 
@@ -21,7 +20,7 @@ export default function TabLayout() {
         // headerStyle: Customizes the header bar appearance at the top of each screen
         // Set dark background (#25292e) to match app theme
         headerStyle: {
-          backgroundColor: "#1B183D",
+          backgroundColor: "#25292e",
         },
 
         // headerShadowVisible: Removes default shadow under header for cleaner look
@@ -34,7 +33,7 @@ export default function TabLayout() {
         // tabBarStyle: Customizes the entire tab bar appearance
         // Matches header background for consistent dark theme
         tabBarStyle: {
-          backgroundColor: colors.accent2,
+          backgroundColor: "#25292e",
         },
       }}
     >
@@ -43,6 +42,7 @@ export default function TabLayout() {
         name="index" // Route name corresponds to index.tsx file
         options={{
           title: "My Flix",
+          headerShown: false,
           tabBarIcon: ({ color, focused }) => (
             // Ionicons: Icon library from @expo/vector-icons
             // Provides Material Design and Ionicons icons as React components
@@ -61,14 +61,12 @@ export default function TabLayout() {
 
       {/* Second Tab Screen: Media */}
       <Tabs.Screen
-        name="media" // Route name corresponds to media.tsx file
+        name="media"
         options={{
-          title: "Media", // Text displayed under the tab icon
-
-          // tabBarIcon: Renders film icon that changes based on focus state
+          title: "Media",
+          headerShown: false,
           tabBarIcon: ({ color, focused }) => (
             <Ionicons
-              // film (filled) for active, film-outline (unfilled) for inactive
               name={focused ? "film" : "film-outline"}
               color={color}
               size={24}

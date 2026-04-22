@@ -1,5 +1,6 @@
 import { colors, fonts } from "@/constants/theme";
 import { Image, StyleSheet, Text, View } from "react-native";
+import FavoriteButton from "./FavoriteButton";
 
 /**
  * MediaCardProps - TypeScript interface for MediaCard component props
@@ -11,6 +12,7 @@ interface MediaCardProps {
   title?: string; // Short or full movie title
   poster?: string; // URL to the poster/cover image
   rating?: number; // Numerical rating (e.g., 9.3)
+  mediaType?: "movie" | "tv";
 }
 
 /**
@@ -24,6 +26,7 @@ export default function MediaCard({
   title,
   poster,
   rating,
+  mediaType = "movie",
 }: MediaCardProps) {
   return (
     // View: Card container that holds poster, title, and rating
@@ -36,12 +39,24 @@ export default function MediaCard({
         Only render when a poster URL is available to avoid passing
         an undefined uri to React Native Image
       */}
-      {poster ? (
-        <Image
-          source={{ uri: poster }}
-          style={[styles.poster, { resizeMode: "cover" }]} // 200px height for grid view
-        />
-      ) : null}
+      <View style={styles.posterContainer}>
+        {poster ? (
+          <Image
+            source={{ uri: poster }}
+            style={[styles.poster, { resizeMode: "cover" }]} // 200px height for grid view
+          />
+        ) : null}
+        {title && (
+          <View style={styles.favoriteButtonContainer}>
+            <FavoriteButton
+              mediaId={parseInt(id)}
+              mediaType={mediaType}
+              title={title}
+              posterPath={poster || ""}
+            />
+          </View>
+        )}
+      </View>
 
       {/* 
         Title: Movie name text
@@ -99,5 +114,18 @@ const styles = StyleSheet.create({
     fontFamily: fonts.regular, // K2D-Regular from theme
     fontSize: 11, // Very small text for compact display
     color: colors.accent1, // Purple accent color (#B030B0) stands out on dark bg
+  },
+
+  posterContainer: {
+    position: "relative",
+    width: "100%",
+    marginBottom: 8,
+  },
+
+  favoriteButtonContainer: {
+    position: "absolute",
+    top: 8,
+    right: 8,
+    zIndex: 10,
   },
 });

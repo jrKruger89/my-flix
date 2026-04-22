@@ -1,5 +1,4 @@
 import DetailCard from "@/components/DetailCard";
-import FavoriteButton from "@/components/FavoriteButton";
 import ReviewComponent from "@/components/ReviewComponent";
 import { MediaItem, transformTMDBToMedia } from "@/services/formatMedia";
 import { getMovieDetails, getTVDetails } from "@/services/tmdbApi";
@@ -113,16 +112,7 @@ export default function DetailScreen() {
   // Main detail view with movie data
   return (
     <ScrollView style={styles.container}>
-      {/* Spread operator passes all properties as individual props */}
       <DetailCard {...movieData} />
-      {movieData && (
-        <FavoriteButton
-          mediaId={parseInt(detail as string, 10)}
-          mediaType={mediaType}
-          title={movieData.title}
-          posterPath={movieData.poster}
-        />
-      )}
       {movieData && (
         <ReviewComponent
           mediaId={parseInt(detail as string, 10)}

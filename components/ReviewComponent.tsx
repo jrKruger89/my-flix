@@ -1,7 +1,7 @@
 // components/ReviewComponent.tsx
 import { useAuthContext } from "@/hooks/use-auth-context";
 import { supabase } from "@/lib/supabase";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Pressable,
@@ -16,6 +16,7 @@ interface Review {
   id: number;
   user_id: string;
   review: string;
+  rating: number;
   created_at: string;
   helpful_count: number;
   username?: string;
@@ -34,16 +35,16 @@ export default function ReviewComponent({
   const userId = claims?.sub;
 
   const [reviews, setReviews] = useState<Review[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [reviewCount, setReviewCount] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
   const [newReview, setNewReview] = useState("");
+  const [newRating, setNewRating] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    loadReviews();
-  }, [mediaId, mediaType]);
-
-  async function loadReviews() {
+  const loadReviews = useCallback(async () => {
     try {
       setLoading(true);
       const { data, error: fetchError } = await supabase
@@ -53,6 +54,7 @@ export default function ReviewComponent({
           id,
           user_id,
           review,
+          rating,
           created_at,
           helpful_count,
           profiles(username)
@@ -71,30 +73,80 @@ export default function ReviewComponent({
         })) || [];
 
       setReviews(mappedReviews);
+      setReviewCount(mappedReviews.length);
     } catch (err) {
       console.error("Failed to load reviews:", err);
       setError("Failed to load reviews");
     } finally {
       setLoading(false);
     }
-  }
+  }, [mediaId, mediaType]);
+
+  const loadReviewCount = useCallback(async () => {
+    try {
+      const { count, error: countError } = await supabase
+        .from("reviews")
+        .select("id", { count: "exact", head: true })
+        .eq("media_id", mediaId)
+        .eq("media_type", mediaType);
+
+      if (countError) throw countError;
+
+      setReviewCount(count ?? 0);
+    } catch (err) {
+      console.error("Failed to load review count:", err);
+    }
+  }, [mediaId, mediaType]);
+
+  useEffect(() => {
+    setHasLoadedOnce(false);
+    setReviews([]);
+    setReviewCount(0);
+    setError(null);
+    setIsExpanded(false);
+  }, [mediaId, mediaType]);
+
+  useEffect(() => {
+    loadReviewCount();
+  }, [loadReviewCount]);
+
+  useEffect(() => {
+    if (!isExpanded || hasLoadedOnce) return;
+
+    loadReviews().finally(() => {
+      setHasLoadedOnce(true);
+    });
+  }, [isExpanded, hasLoadedOnce, loadReviews]);
 
   async function submitReview() {
     if (!userId || !newReview.trim()) return;
 
+    const parsedRating = Number.parseInt(newRating, 10);
+    const isRatingValid =
+      Number.isInteger(parsedRating) && parsedRating >= 1 && parsedRating <= 10;
+
+    if (!isRatingValid) {
+      setError("Please enter a rating between 1 and 10.");
+      return;
+    }
+
     setSubmitting(true);
+    setError(null);
     try {
       const { error: submitError } = await supabase.from("reviews").insert({
         user_id: userId,
         media_id: mediaId,
         media_type: mediaType,
         review: newReview.trim(),
+        rating: parsedRating,
       });
 
       if (submitError) throw submitError;
 
       setNewReview("");
+      setNewRating("");
       await loadReviews();
+      await loadReviewCount();
     } catch (err) {
       console.error("Failed to submit review:", err);
       setError("Failed to submit review");
@@ -113,77 +165,111 @@ export default function ReviewComponent({
 
       if (deleteError) throw deleteError;
 
-      setReviews(reviews.filter((r) => r.id !== reviewId));
+      setReviews((prev) => prev.filter((r) => r.id !== reviewId));
+      await loadReviewCount();
     } catch (err) {
       console.error("Failed to delete review:", err);
       setError("Failed to delete review");
     }
   }
 
-  if (loading) {
-    return (
-      <View style={styles.centerContent}>
-        <ActivityIndicator size="small" color="#b73ad0" />
-      </View>
-    );
-  }
-
   return (
     <View style={styles.container}>
-      <Text style={styles.heading}>Reviews ({reviews.length})</Text>
+      <Pressable
+        style={styles.collapseHeader}
+        onPress={() => setIsExpanded((prev) => !prev)}
+      >
+        <Text style={styles.heading}>Reviews ({reviewCount})</Text>
+        <Text style={styles.collapseToggle}>
+          {isExpanded ? "Hide" : "Show"}
+        </Text>
+      </Pressable>
 
-      {/* Add Review Form */}
-      {userId && (
-        <View style={styles.formContainer}>
-          <TextInput
-            style={styles.input}
-            placeholder="Write a review..."
-            placeholderTextColor="#9d9daf"
-            value={newReview}
-            onChangeText={setNewReview}
-            multiline
-            numberOfLines={4}
-          />
-          <Pressable
-            style={[styles.submitButton, submitting && { opacity: 0.6 }]}
-            onPress={submitReview}
-            disabled={submitting || !newReview.trim()}
-          >
-            <Text style={styles.submitText}>
-              {submitting ? "Posting..." : "Post Review"}
-            </Text>
-          </Pressable>
+      {!isExpanded ? null : (
+        <View style={styles.expandedContent}>
+          {loading ? (
+            <View style={styles.centerContent}>
+              <ActivityIndicator size="small" color="#b73ad0" />
+            </View>
+          ) : (
+            <>
+              {/* Add Review Form */}
+              {userId && (
+                <View style={styles.formContainer}>
+                  <TextInput
+                    style={styles.ratingInput}
+                    placeholder="Rating (1-10)"
+                    placeholderTextColor="#9d9daf"
+                    value={newRating}
+                    onChangeText={setNewRating}
+                    keyboardType="number-pad"
+                    maxLength={2}
+                  />
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Write a review..."
+                    placeholderTextColor="#9d9daf"
+                    value={newReview}
+                    onChangeText={setNewReview}
+                    multiline
+                    numberOfLines={4}
+                  />
+                  <Pressable
+                    style={[
+                      styles.submitButton,
+                      submitting && { opacity: 0.6 },
+                    ]}
+                    onPress={submitReview}
+                    disabled={
+                      submitting || !newReview.trim() || !newRating.trim()
+                    }
+                  >
+                    <Text style={styles.submitText}>
+                      {submitting ? "Posting..." : "Post Review"}
+                    </Text>
+                  </Pressable>
+                </View>
+              )}
+
+              {error && <Text style={styles.errorText}>{error}</Text>}
+
+              {/* Reviews List */}
+              <ScrollView style={styles.reviewsList}>
+                {reviews.length === 0 ? (
+                  <Text style={styles.noReviews}>
+                    No reviews yet. Be the first!
+                  </Text>
+                ) : (
+                  reviews.map((review) => (
+                    <View key={review.id} style={styles.reviewCard}>
+                      <View style={styles.reviewHeader}>
+                        <Text style={styles.username}>{review.username}</Text>
+                        <View style={styles.reviewMeta}>
+                          <Text style={styles.ratingBadge}>
+                            ★ {review.rating}/10
+                          </Text>
+                          <Text style={styles.date}>
+                            {new Date(review.created_at).toLocaleDateString()}
+                          </Text>
+                        </View>
+                      </View>
+                      <Text style={styles.reviewText}>{review.review}</Text>
+                      {userId === review.user_id && (
+                        <Pressable
+                          onPress={() => deleteReview(review.id)}
+                          style={styles.deleteButton}
+                        >
+                          <Text style={styles.deleteText}>Delete</Text>
+                        </Pressable>
+                      )}
+                    </View>
+                  ))
+                )}
+              </ScrollView>
+            </>
+          )}
         </View>
       )}
-
-      {error && <Text style={styles.errorText}>{error}</Text>}
-
-      {/* Reviews List */}
-      <ScrollView style={styles.reviewsList}>
-        {reviews.length === 0 ? (
-          <Text style={styles.noReviews}>No reviews yet. Be the first!</Text>
-        ) : (
-          reviews.map((review) => (
-            <View key={review.id} style={styles.reviewCard}>
-              <View style={styles.reviewHeader}>
-                <Text style={styles.username}>{review.username}</Text>
-                <Text style={styles.date}>
-                  {new Date(review.created_at).toLocaleDateString()}
-                </Text>
-              </View>
-              <Text style={styles.reviewText}>{review.review}</Text>
-              {userId === review.user_id && (
-                <Pressable
-                  onPress={() => deleteReview(review.id)}
-                  style={styles.deleteButton}
-                >
-                  <Text style={styles.deleteText}>Delete</Text>
-                </Pressable>
-              )}
-            </View>
-          ))
-        )}
-      </ScrollView>
     </View>
   );
 }
@@ -197,11 +283,33 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "600",
     color: "#f1f1f7",
-    marginBottom: 16,
+  },
+  collapseHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 8,
+  },
+  collapseToggle: {
+    color: "#b73ad0",
+    fontSize: 14,
+    fontWeight: "600",
+  },
+  expandedContent: {
+    paddingTop: 8,
   },
   formContainer: {
     marginBottom: 16,
     gap: 8,
+  },
+  ratingInput: {
+    backgroundColor: "#dfdfdf",
+    borderWidth: 2,
+    borderColor: "#b73ad0",
+    borderRadius: 8,
+    padding: 12,
+    fontSize: 14,
+    color: "#1f1f1f",
   },
   input: {
     backgroundColor: "#dfdfdf",
@@ -237,7 +345,17 @@ const styles = StyleSheet.create({
   reviewHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
+    alignItems: "center",
     marginBottom: 8,
+  },
+  reviewMeta: {
+    alignItems: "flex-end",
+    gap: 2,
+  },
+  ratingBadge: {
+    color: "#f7d66b",
+    fontSize: 12,
+    fontWeight: "600",
   },
   username: {
     fontWeight: "600",
