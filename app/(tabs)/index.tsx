@@ -3,6 +3,8 @@ import MediaRow from "@/components/mediaRow";
 import { useAuthContext } from "@/hooks/use-auth-context";
 import { useMediaData } from "@/hooks/use-media-data";
 import { supabase } from "@/lib/supabase";
+import { MediaItem, transformTMDBToMedia } from "@/services/formatMedia";
+import { getTrendingMovies } from "@/services/tmdbApi";
 import { LinearGradient } from "expo-linear-gradient";
 import React, { useEffect, useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
@@ -25,6 +27,15 @@ export default function Index() {
   const { claims } = useAuthContext();
   const userId = claims?.sub;
   const [favorites, setFavorites] = useState<FavoriteItem[]>([]);
+  const [trending, setTrending] = useState<MediaItem[]>([]);
+
+  useEffect(() => {
+    async function loadTrending() {
+      const data = await getTrendingMovies(1);
+      setTrending(data.results.map(transformTMDBToMedia));
+    }
+    loadTrending();
+  }, []);
 
   useEffect(() => {
     if (!userId) return;
@@ -78,6 +89,7 @@ export default function Index() {
               title="Watchlist"
               mediaArray={favorites.map((item) => ({
                 ...item,
+                id: item.media_id,
                 poster: item.poster_path
                   ? `https://image.tmdb.org/t/p/w500${item.poster_path}`
                   : null,
@@ -85,8 +97,8 @@ export default function Index() {
               handleMediaPress={handleMediaPress}
             />
             <MediaRow
-              title="Recommended"
-              mediaArray={mediaArray}
+              title="Trending This Week"
+              mediaArray={trending}
               handleMediaPress={handleMediaPress}
             />
           </View>

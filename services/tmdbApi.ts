@@ -38,6 +38,14 @@ export async function getMovieDetails(movieId: number) {
   return data;
 }
 
+export async function getTrendingMovies(page: number = 1) {
+  const response = await fetch(
+    `${TMDB_BASE_URL}/trending/movie/week?api_key=${TMDB_API_KEY}&page=${page}`,
+  );
+  const data: TMDBResponse = await response.json();
+  return data;
+}
+
 export interface TMDBShow {
   id: number;
   name: string;
