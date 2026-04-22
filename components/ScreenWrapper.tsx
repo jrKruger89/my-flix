@@ -11,10 +11,10 @@ export function ScreenWrapper({ children }) {
   const opacity = useSharedValue(0.5);
   const translateY = useSharedValue(6);
 
-  const easeOut = { duration: 500, easing: Easing.out(Easing.ease) };
-
   useFocusEffect(
     useCallback(() => {
+      const easeOut = { duration: 500, easing: Easing.out(Easing.ease) };
+
       opacity.value = withTiming(1, easeOut);
       translateY.value = withTiming(0, easeOut);
 
@@ -25,7 +25,7 @@ export function ScreenWrapper({ children }) {
         });
         translateY.value = 6;
       };
-    }, []),
+    }, [opacity, translateY]),
   );
 
   const animatedStyle = useAnimatedStyle(() => ({
