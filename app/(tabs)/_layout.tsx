@@ -53,7 +53,7 @@ function AnimatedTabBarIcon({ state, navigation }) {
           >
             <Ionicons
               name={focused ? tab.activeIcon : tab.icon}
-              color="#fff"
+              color={colors.txtColor}
               size={24}
             />
           </Pressable>
