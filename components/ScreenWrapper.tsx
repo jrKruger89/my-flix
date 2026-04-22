@@ -11,7 +11,7 @@ export function ScreenWrapper({ children }) {
   const opacity = useSharedValue(0.5);
   const translateY = useSharedValue(6);
 
-  const easeOut = { duration: 300, easing: Easing.out(Easing.ease) };
+  const easeOut = { duration: 500, easing: Easing.out(Easing.ease) };
 
   useFocusEffect(
     useCallback(() => {
@@ -20,7 +20,7 @@ export function ScreenWrapper({ children }) {
 
       return () => {
         opacity.value = withTiming(0, {
-          duration: 200,
+          duration: 700,
           easing: Easing.in(Easing.ease),
         });
         translateY.value = 6;
