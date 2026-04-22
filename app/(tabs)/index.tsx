@@ -1,16 +1,64 @@
 import { ScreenWrapper } from "@/components/ScreenWrapper";
 import MediaRow from "@/components/mediaRow";
+import { useAuthContext } from "@/hooks/use-auth-context";
 import { useMediaData } from "@/hooks/use-media-data";
+import { supabase } from "@/lib/supabase";
 import { LinearGradient } from "expo-linear-gradient";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 /**
  * Home Screen (Index) - The landing page of the application
  * Displays welcome content and provides navigation to other screens
  * Uses React Native components for cross-platform mobile UI
  */
+type FavoriteItem = {
+  id: number;
+  media_id: number;
+  media_type: "movie" | "tv";
+  title: string | null;
+  poster_path: string | null;
+  created_at: string;
+};
+
 export default function Index() {
-  const { mediaArray, loading, error, handleMediaPress } = useMediaData();
+  const { mediaArray, handleMediaPress } = useMediaData();
+  const { claims } = useAuthContext();
+  const userId = claims?.sub;
+  const [favorites, setFavorites] = useState<FavoriteItem[]>([]);
+
+  useEffect(() => {
+    if (!userId) return;
+
+    async function loadFavorites() {
+      const { data, error } = await supabase
+        .from("favorites")
+        .select("id, media_id, media_type, title, poster_path, created_at")
+        .eq("user_id", userId)
+        .order("created_at", { ascending: false });
+
+      if (!error) setFavorites((data ?? []) as FavoriteItem[]);
+    }
+
+    loadFavorites();
+    const subscription = supabase
+      .channel("favorites-changes")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "favorites",
+          filter: `user_id=eq.${userId}`,
+        },
+        () => loadFavorites(),
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(subscription);
+    };
+  }, [userId]);
+
   return (
     <LinearGradient
       colors={["#171739", "#3b1f63", "#16193a"]}
@@ -28,7 +76,12 @@ export default function Index() {
             />
             <MediaRow
               title="Watchlist"
-              mediaArray={mediaArray}
+              mediaArray={favorites.map((item) => ({
+                ...item,
+                poster: item.poster_path
+                  ? `https://image.tmdb.org/t/p/w500${item.poster_path}`
+                  : null,
+              }))}
               handleMediaPress={handleMediaPress}
             />
             <MediaRow
