@@ -31,8 +31,8 @@ function AnimatedTabBarIcon({ state, navigation }) {
 
   useEffect(() => {
     bubbleX.value = withSpring(bubblePosition(state.index), {
-      damping: 50,
-      stiffness: 160,
+      damping: 90,
+      stiffness: 700,
     });
   }, [state.index]);
 
