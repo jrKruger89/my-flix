@@ -39,6 +39,14 @@
           }
         }
       ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow my-flix to access your photo library so you can upload a profile picture.",
+          "cameraPermission": "Allow my-flix to use your camera so you can take a profile picture.",
+          "microphonePermission": "Allow my-flix to access your microphone when recording videos."
+        }
+      ],
       "expo-sqlite"
     ],
     "experiments": {
