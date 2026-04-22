@@ -76,19 +76,24 @@ export default function ProfileScreen() {
     setLoadingFavorites(true);
     setError(null);
 
-    const { data, error } = await supabase
-      .from("favorites")
-      .select("id, media_id, media_type, title, poster_path, created_at")
-      .eq("user_id", userId)
-      .order("created_at", { ascending: false });
+    try {
+      const { data, error } = await supabase
+        .from("favorites")
+        .select("id, media_id, media_type, title, poster_path, created_at")
+        .eq("user_id", userId)
+        .order("created_at", { ascending: false });
 
-    if (error) {
-      setError(error.message);
-    } else {
-      setFavorites((data ?? []) as FavoriteItem[]);
+      if (error) {
+        setError(error.message);
+      } else {
+        setFavorites((data ?? []) as FavoriteItem[]);
+      }
+    } catch (e: any) {
+      console.error("Failed to load favorites:", e);
+      setError(e?.message || "Failed to load favorites");
+    } finally {
+      setLoadingFavorites(false);
     }
-
-    setLoadingFavorites(false);
   }
 
   async function loadReviews() {
@@ -96,19 +101,24 @@ export default function ProfileScreen() {
     setLoadingReviews(true);
     setError(null);
 
-    const { data, error } = await supabase
-      .from("reviews")
-      .select("id, media_id, media_type, review, created_at")
-      .eq("user_id", userId)
-      .order("created_at", { ascending: false });
+    try {
+      const { data, error } = await supabase
+        .from("reviews")
+        .select("id, media_id, media_type, review, created_at")
+        .eq("user_id", userId)
+        .order("created_at", { ascending: false });
 
-    if (error) {
-      setError(error.message);
-    } else {
-      setReviews((data ?? []) as ReviewItem[]);
+      if (error) {
+        setError(error.message);
+      } else {
+        setReviews((data ?? []) as ReviewItem[]);
+      }
+    } catch (e: any) {
+      console.error("Failed to load reviews:", e);
+      setError(e?.message || "Failed to load reviews");
+    } finally {
+      setLoadingReviews(false);
     }
-
-    setLoadingReviews(false);
   }
 
   async function onChangeAvatarPress() {
@@ -387,7 +397,6 @@ const styles = StyleSheet.create({
     height: 132,
     borderRadius: 66,
     alignSelf: "center",
-    marginTop: 26,
     borderWidth: 2,
     borderColor: "#ffffff22",
   },
