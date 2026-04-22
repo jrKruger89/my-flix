@@ -1,3 +1,4 @@
+import { ScreenWrapper } from "@/components/ScreenWrapper";
 import MediaRow from "@/components/mediaRow";
 import { useMediaData } from "@/hooks/use-media-data";
 import { LinearGradient } from "expo-linear-gradient";
@@ -17,25 +18,27 @@ export default function Index() {
       end={{ x: 1, y: 1 }}
       style={styles.container}
     >
-      <ScrollView>
-        <View style={styles.container}>
-          <MediaRow
-            title="Currently Watching"
-            mediaArray={mediaArray}
-            handleMediaPress={handleMediaPress}
-          />
-          <MediaRow
-            title="Watchlist"
-            mediaArray={mediaArray}
-            handleMediaPress={handleMediaPress}
-          />
-          <MediaRow
-            title="Recommended"
-            mediaArray={mediaArray}
-            handleMediaPress={handleMediaPress}
-          />
-        </View>
-      </ScrollView>
+      <ScreenWrapper>
+        <ScrollView>
+          <View style={styles.container}>
+            <MediaRow
+              title="Currently Watching"
+              mediaArray={mediaArray}
+              handleMediaPress={handleMediaPress}
+            />
+            <MediaRow
+              title="Watchlist"
+              mediaArray={mediaArray}
+              handleMediaPress={handleMediaPress}
+            />
+            <MediaRow
+              title="Recommended"
+              mediaArray={mediaArray}
+              handleMediaPress={handleMediaPress}
+            />
+          </View>
+        </ScrollView>
+      </ScreenWrapper>
     </LinearGradient>
   );
 }
