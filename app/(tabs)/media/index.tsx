@@ -3,7 +3,7 @@ import { colors } from "@/constants/theme";
 import { MediaItem, transformTMDBToMedia } from "@/services/formatMedia";
 import { getPopularMovies, getPopularTV } from "@/services/tmdbApi";
 import { useRouter } from "expo-router";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
@@ -22,11 +22,7 @@ export default function MediaScreen() {
   const [error, setError] = useState<string | null>(null);
   const [isShowingTV, setIsShowingTV] = useState(false);
 
-  useEffect(() => {
-    loadMediaData();
-  }, [isShowingTV]);
-
-  async function loadMediaData() {
+  const loadMediaData = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -42,7 +38,11 @@ export default function MediaScreen() {
     } finally {
       setLoading(false);
     }
-  }
+  }, [isShowingTV]);
+
+  useEffect(() => {
+    loadMediaData();
+  }, [loadMediaData]);
 
   const handleMediaPress = (id: string) => {
     router.push(`/media/${id}?type=${isShowingTV ? "tv" : "movie"}`);

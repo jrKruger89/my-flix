@@ -1,5 +1,6 @@
 import { colors, fonts } from "@/constants/theme";
 import { Image, StyleSheet, Text, View } from "react-native";
+import FavoriteButton from "./FavoriteButton";
 
 /**
  * DetailCardProps - TypeScript interface defining all optional props for DetailCard
@@ -51,12 +52,24 @@ export default function DetailCard({
         Only renders when a poster URL exists so `uri` is always a string
         and missing poster data is handled gracefully
       */}
-      {poster && (
-        <Image
-          source={{ uri: poster }}
-          style={styles.poster} // Large 400px tall image with rounded corners
-        />
-      )}
+      <View style={styles.posterContainer}>
+        {poster && (
+          <Image
+            source={{ uri: poster }}
+            style={styles.poster} // Large 400px tall image with rounded corners
+          />
+        )}
+        {title && (
+          <View style={styles.favoriteButtonContainer}>
+            <FavoriteButton
+              mediaId={parseInt(id)}
+              mediaType={mediaType || "movie"}
+              title={title}
+              posterPath={poster || ""}
+            />
+          </View>
+        )}
+      </View>
 
       {/* 
         Title text: Large, prominent heading for the media name
@@ -115,13 +128,6 @@ export default function DetailCard({
       {description && description.length > 0 && (
         <Text style={styles.description}>{description.join("\n\n")}</Text>
       )}
-
-      {/* 
-        ID display: Shows unique identifier
-        Useful for debugging or API integration
-        Small, subtle styling so it doesn't distract from main content
-      */}
-      <Text style={styles.id}>ID: {id}</Text>
 
       {/* 
         Seasons: Displays number of seasons (TV only)
@@ -197,5 +203,18 @@ const styles = StyleSheet.create({
     fontFamily: fonts.regular, // K2D-Regular from theme
     fontSize: 10, // Very small text - shows it's auxiliary info
     color: colors.txtColor, // Same light color but small size diminishes prominence
+  },
+
+  posterContainer: {
+    position: "relative",
+    width: "100%",
+    marginBottom: 16,
+  },
+
+  favoriteButtonContainer: {
+    position: "absolute",
+    top: 8,
+    right: 8,
+    zIndex: 10,
   },
 });

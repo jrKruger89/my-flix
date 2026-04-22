@@ -1,7 +1,7 @@
 import { MediaItem, transformTMDBToMedia } from "@/services/formatMedia";
 import { getPopularMovies } from "@/services/tmdbApi";
-import { useRouter } from "expo-router";
-import { useEffect, useState } from "react";
+import { useFocusEffect, useRouter } from "expo-router";
+import { useCallback, useEffect, useState } from "react";
 
 export function useMediaData() {
   const [mediaArray, setMediaArray] = useState<MediaItem[]>([]);
@@ -12,6 +12,15 @@ export function useMediaData() {
   useEffect(() => {
     loadMediaData();
   }, []);
+
+  // Refetch when screen comes into focus to update favorite states
+  useFocusEffect(
+    useCallback(() => {
+      // Force re-render of all FavoriteButtons by triggering a query
+      // This ensures favorites are up-to-date when returning to this screen
+      loadMediaData();
+    }, []),
+  );
 
   async function loadMediaData() {
     try {

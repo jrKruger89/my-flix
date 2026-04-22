@@ -42,6 +42,7 @@ export default function TabLayout() {
         name="index" // Route name corresponds to index.tsx file
         options={{
           title: "My Flix",
+          headerShown: false,
           tabBarIcon: ({ color, focused }) => (
             // Ionicons: Icon library from @expo/vector-icons
             // Provides Material Design and Ionicons icons as React components
@@ -60,14 +61,12 @@ export default function TabLayout() {
 
       {/* Second Tab Screen: Media */}
       <Tabs.Screen
-        name="media" // Route name corresponds to media.tsx file
+        name="media"
         options={{
-          title: "Media", // Text displayed under the tab icon
-
-          // tabBarIcon: Renders film icon that changes based on focus state
+          title: "Media",
+          headerShown: false,
           tabBarIcon: ({ color, focused }) => (
             <Ionicons
-              // film (filled) for active, film-outline (unfilled) for inactive
               name={focused ? "film" : "film-outline"}
               color={color}
               size={24}
