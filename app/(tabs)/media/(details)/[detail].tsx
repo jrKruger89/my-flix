@@ -1,3 +1,4 @@
+import BackButton from "@/components/BackButton";
 import DetailCard from "@/components/DetailCard";
 import FavoriteButton from "@/components/FavoriteButton";
 import ReviewComponent from "@/components/ReviewComponent";
@@ -113,7 +114,7 @@ export default function DetailScreen() {
   // Main detail view with movie data
   return (
     <ScrollView style={styles.container}>
-      {/* Spread operator passes all properties as individual props */}
+      <BackButton />
       <DetailCard {...movieData} />
       {movieData && (
         <FavoriteButton
