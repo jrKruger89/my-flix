@@ -140,8 +140,9 @@ export default function ProfileScreen() {
         ? extFromMime
         : "jpg";
 
-      const fileName = "avatar-" + Date.now() + "." + safeExt;
-      const storagePath = userId + "/" + fileName;
+      const storagePath = userId + "/avatar." + safeExt;
+
+      const previousUrl = profile?.avatar_url ?? null;
 
       const fileRes = await fetch(asset.uri);
       const fileBlob = await fileRes.blob();
@@ -152,23 +153,43 @@ export default function ProfileScreen() {
           contentType: mimeType,
           upsert: true,
         });
-
       if (upload.error) throw upload.error;
 
       const { data: publicData } = supabase.storage
         .from("avatars")
         .getPublicUrl(storagePath);
-
       const publicUrl = publicData.publicUrl;
+
+      // Optional cache-bust for immediate UI refresh
+      const displayUrl = publicUrl + "?t=" + Date.now();
 
       const update = await supabase
         .from("profiles")
         .update({ avatar_url: publicUrl, updated_at: new Date().toISOString() })
         .eq("id", userId);
-
       if (update.error) throw update.error;
 
-      setAvatarUrl(publicUrl);
+      // Clean up previous avatar only after new avatar is stored and profile is updated.
+      if (previousUrl) {
+        const marker = "/storage/v1/object/public/avatars/";
+        const i = previousUrl.indexOf(marker);
+        if (i !== -1) {
+          const oldPath = previousUrl.slice(i + marker.length).split("?")[0];
+          if (oldPath && oldPath !== storagePath) {
+            const removeResult = await supabase.storage
+              .from("avatars")
+              .remove([oldPath]);
+            if (removeResult.error) {
+              console.warn(
+                "Failed to remove previous avatar:",
+                removeResult.error,
+              );
+            }
+          }
+        }
+      }
+
+      setAvatarUrl(displayUrl);
       Alert.alert("Success", "Profile picture updated.");
     } catch (e: any) {
       console.error("Avatar upload failed:", e);
