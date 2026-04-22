@@ -1,3 +1,4 @@
+import { ScreenWrapper } from "@/components/ScreenWrapper";
 import SignOutButton from "@/components/social-auth-buttons/sign-out-button";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { LinearGradient } from "expo-linear-gradient";
@@ -29,50 +30,52 @@ export default function ProfileScreen() {
       end={{ x: 1, y: 1 }}
       style={[styles.container, { paddingTop: insets.top }]}
     >
-      <ScrollView>
-        <View style={styles.headerRow}>
-          <Pressable style={styles.iconButton}>
-            <Ionicons name="arrow-back" size={22} color="#fff" />
-          </Pressable>
+      <ScreenWrapper>
+        <ScrollView>
+          <View style={styles.headerRow}>
+            <Pressable style={styles.iconButton}>
+              <Ionicons name="arrow-back" size={22} color="#fff" />
+            </Pressable>
 
-          <Text style={styles.headerTitle}>Profile</Text>
+            <Text style={styles.headerTitle}>Profile</Text>
 
-          <Pressable style={styles.settingsButton}>
-            <Ionicons name="settings-outline" size={22} color={"#fff"} />
-          </Pressable>
-        </View>
-
-        <Image
-          source={require("../../assets/images/MrBaggins.jpg")}
-          style={styles.avatar}
-        />
-
-        <Text style={styles.name}>Mr. Underhill</Text>
-
-        <View style={styles.statsRow}>
-          <View style={styles.statItem}>
-            <Ionicons name="people-outline" size={16} color={"#d7d7e6"} />
-            <Text style={styles.statLabel}>Reviews</Text>
+            <Pressable style={styles.settingsButton}>
+              <Ionicons name="settings-outline" size={22} color={"#fff"} />
+            </Pressable>
           </View>
-          <View style={styles.statItem}>
-            <Ionicons name="people-outline" size={16} color={"#d7d7e6"} />
-            <Text style={styles.statLabel}>Followers</Text>
-          </View>
-          <View style={styles.statItem}>
-            <Ionicons name="people-outline" size={16} color={"#d7d7e6"} />
-            <Text style={styles.statLabel}>Following</Text>
-          </View>
-        </View>
 
-        <View style={styles.menuBlock}>
-          {MENU_ITEMS.map((item) => (
-            <Text key={item} style={styles.menuText}>
-              {item}
-            </Text>
-          ))}
-        </View>
-        <SignOutButton />
-      </ScrollView>
+          <Image
+            source={require("../../assets/images/MrBaggins.jpg")}
+            style={styles.avatar}
+          />
+
+          <Text style={styles.name}>Mr. Underhill</Text>
+
+          <View style={styles.statsRow}>
+            <View style={styles.statItem}>
+              <Ionicons name="people-outline" size={16} color={"#d7d7e6"} />
+              <Text style={styles.statLabel}>Reviews</Text>
+            </View>
+            <View style={styles.statItem}>
+              <Ionicons name="people-outline" size={16} color={"#d7d7e6"} />
+              <Text style={styles.statLabel}>Followers</Text>
+            </View>
+            <View style={styles.statItem}>
+              <Ionicons name="people-outline" size={16} color={"#d7d7e6"} />
+              <Text style={styles.statLabel}>Following</Text>
+            </View>
+          </View>
+
+          <View style={styles.menuBlock}>
+            {MENU_ITEMS.map((item) => (
+              <Text key={item} style={styles.menuText}>
+                {item}
+              </Text>
+            ))}
+          </View>
+          <SignOutButton />
+        </ScrollView>
+      </ScreenWrapper>
     </LinearGradient>
   );
 }

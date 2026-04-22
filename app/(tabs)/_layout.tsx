@@ -2,7 +2,6 @@ import { colors } from "@/constants/theme";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { Tabs } from "expo-router";
 import { View } from "react-native";
-
 /**
  * TabLayout - Navigation layout component that creates a tabbed interface
  * Manages three main screens: Home, Media, and About
@@ -42,12 +41,12 @@ export default function TabLayout() {
           position: "absolute",
           elevation: 0,
           shadowOpacity: 0,
-          borderWidth: 3, // Sets the border thickness for all sides
-          borderColor: colors.accent1, // Sets the border color to accent1 for all sides
+          borderWidth: 3,
+          borderColor: colors.accent1,
           borderTopWidth: 3,
         },
         tabBarShowLabel: false,
-        tabBarInactiveTintColor: "#fff", // Sets the inactive tab icon color to white
+        tabBarInactiveTintColor: "#fff",
       }}
     >
       {/* First Tab Screen: Home */}
@@ -80,20 +79,15 @@ export default function TabLayout() {
 
       {/* Second Tab Screen: Media */}
       <Tabs.Screen
-        name="media" // Route name corresponds to media.tsx file
+        name="media"
         options={{
-          title: "Media", // Text displayed under the tab icon
+          title: "Media",
 
-          // tabBarIcon: Renders film icon that changes based on focus state
           tabBarIcon: ({ color, focused }) => (
             <View
-              style={[
-                styles.iconWrapper,
-                focused && styles.activeIconWrapper, // Add circle background if focused
-              ]}
+              style={[styles.iconWrapper, focused && styles.activeIconWrapper]}
             >
               <Ionicons
-                // film (filled) for active, film-outline (unfilled) for inactive
                 name={focused ? "film" : "film-outline"}
                 color={color}
                 size={24}
@@ -109,10 +103,7 @@ export default function TabLayout() {
           headerShown: false,
           tabBarIcon: ({ color, focused }) => (
             <View
-              style={[
-                styles.iconWrapper,
-                focused && styles.activeIconWrapper, // Add circle background if focused
-              ]}
+              style={[styles.iconWrapper, focused && styles.activeIconWrapper]}
             >
               <Ionicons
                 name={focused ? "person-circle" : "person-circle-outline"}
@@ -135,9 +126,9 @@ const styles = {
   },
   activeIconWrapper: {
     backgroundColor: colors.accent1,
-    borderRadius: 30, // Ensure it's a perfect circle
+    borderRadius: 30,
     width: 45,
     height: 45,
-    transform: [{ translateY: 10 }], // Moves the circle slightly more downward
+    transform: [{ translateY: 10 }],
   },
 };
