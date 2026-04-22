@@ -67,6 +67,10 @@ export default function ProfileScreen() {
   }
 
   async function refreshProfileData() {
+    if (!userId) {
+      Alert.alert("Unable to refresh", "Please sign in to refresh profile data.");
+      return;
+    }
     await Promise.all([loadFavorites(), loadReviews()]);
     Alert.alert("Refreshed", "Profile data updated.");
   }
