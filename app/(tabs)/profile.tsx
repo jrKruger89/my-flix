@@ -125,17 +125,22 @@ export default function ProfileScreen() {
       setError(null);
 
       const asset = picked.assets[0];
-      const fileExt = (asset.uri.split(".").pop() || "jpg").toLowerCase();
-      const fileName = `avatar-${Date.now()}.${fileExt}`;
-      const storagePath = `${userId}/${fileName}`;
+      const mimeType = asset.mimeType ?? "image/jpeg";
+      const extFromMime = mimeType.split("/")[1] || "jpg";
+      const safeExt = ["jpg", "jpeg", "png", "webp"].includes(extFromMime)
+        ? extFromMime
+        : "jpg";
+
+      const fileName = "avatar-" + Date.now() + "." + safeExt;
+      const storagePath = userId + "/" + fileName;
 
       const fileRes = await fetch(asset.uri);
-      const fileBuffer = await fileRes.arrayBuffer();
+      const fileBlob = await fileRes.blob();
 
       const upload = await supabase.storage
         .from("avatars")
-        .upload(storagePath, fileBuffer, {
-          contentType: asset.mimeType || `image/${fileExt}`,
+        .upload(storagePath, fileBlob, {
+          contentType: mimeType,
           upsert: true,
         });
 
@@ -156,6 +161,8 @@ export default function ProfileScreen() {
 
       setAvatarUrl(publicUrl);
     } catch (e: any) {
+      console.error("Avatar upload failed:", e);
+      Alert.alert("Avatar upload failed", e?.message || "Unknown error");
       setError(e?.message || "Failed to update avatar");
     } finally {
       setIsUploadingAvatar(false);
@@ -222,16 +229,18 @@ export default function ProfileScreen() {
 
         <View style={styles.statsRow}>
           <View style={styles.statItem}>
-            <Ionicons name="people-outline" size={16} color={"#d7d7e6"} />
+            <Ionicons name="heart-outline" size={16} color={"#d7d7e6"} />
+            <Text style={styles.statValue}>{favorites.length}</Text>
+            <Text style={styles.statLabel}>Favorites</Text>
+          </View>
+          <View style={styles.statItem}>
+            <Ionicons
+              name="chatbubble-ellipses-outline"
+              size={16}
+              color={"#d7d7e6"}
+            />
+            <Text style={styles.statValue}>{reviews.length}</Text>
             <Text style={styles.statLabel}>Reviews</Text>
-          </View>
-          <View style={styles.statItem}>
-            <Ionicons name="people-outline" size={16} color={"#d7d7e6"} />
-            <Text style={styles.statLabel}>Followers</Text>
-          </View>
-          <View style={styles.statItem}>
-            <Ionicons name="people-outline" size={16} color={"#d7d7e6"} />
-            <Text style={styles.statLabel}>Following</Text>
           </View>
         </View>
 
@@ -371,30 +380,6 @@ const styles = StyleSheet.create({
     color: "#d7d7e6",
     fontSize: 15,
   },
-  menuBlock: {
-    marginTop: 48,
-    marginBottom: 32,
-    gap: 18,
-  },
-  menuText: {
-    color: "#F0F0F0",
-    fontSize: 20,
-    fontWeight: "400",
-  },
-  logoutButton: {
-    marginTop: "auto",
-    marginBottom: 22,
-    alignSelf: "center",
-    backgroundColor: "#b138cf",
-    paddingHorizontal: 20,
-    paddingVertical: 8,
-    borderRadius: 999,
-  },
-  logoutText: {
-    color: "#fff",
-    fontSize: 18,
-    fontWeight: "600",
-  },
   settingsButton: {
     width: 36,
     height: 36,
@@ -491,5 +476,10 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     borderWidth: 1,
     borderColor: "#ffffff55",
+  },
+  statValue: {
+    color: "#fff",
+    fontSize: 18,
+    fontWeight: "700",
   },
 });
