@@ -1,7 +1,14 @@
 import SignOutButton from "@/components/social-auth-buttons/sign-out-button";
+import { useAuthContext } from "@/hooks/use-auth-context";
+import { supabase } from "@/lib/supabase";
 import Ionicons from "@expo/vector-icons/Ionicons";
+import * as ImagePicker from "expo-image-picker";
 import { LinearGradient } from "expo-linear-gradient";
+import { useRouter } from "expo-router";
+import { useEffect, useMemo, useState } from "react";
 import {
+  ActivityIndicator,
+  Alert,
   Image,
   Pressable,
   ScrollView,
@@ -11,16 +18,163 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-const MENU_ITEMS = [
-  "Saved filmography",
-  "My reviews",
-  "My Movies",
-  "My shows",
-  "My FilmClubs",
-];
+type FavoriteItem = {
+  id: number;
+  media_id: number;
+  media_type: "movie" | "tv";
+  title: string | null;
+  poster_path: string | null;
+  created_at: string;
+};
+
+type ReviewItem = {
+  id: number;
+  media_id: number;
+  media_type: "movie" | "tv";
+  review: string;
+  created_at: string;
+};
 
 export default function ProfileScreen() {
+  const { claims, profile } = useAuthContext();
+  const userId = claims?.sub;
+  const [activeTab, setActiveTab] = useState<"favorites" | "reviews">(
+    "favorites",
+  );
+
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(
+    profile?.avatar_url ?? null,
+  );
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+  const [favorites, setFavorites] = useState<FavoriteItem[]>([]);
+  const [reviews, setReviews] = useState<ReviewItem[]>([]);
+  const [loadingFavorites, setLoadingFavorites] = useState(false);
+  const [loadingReviews, setLoadingReviews] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const insets = useSafeAreaInsets();
+
+  const router = useRouter();
+
+  const displayName = useMemo(() => {
+    if (profile?.username) return profile.username;
+    const email = claims?.email as string | undefined;
+    if (email?.includes("@")) return email.split("@")[0];
+    return "User";
+  }, [profile?.username, claims?.email]);
+
+  async function loadFavorites() {
+    if (!userId) return;
+    setLoadingFavorites(true);
+    setError(null);
+
+    const { data, error } = await supabase
+      .from("favorites")
+      .select("id, media_id, media_type, title, poster_path, created_at")
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      setError(error.message);
+    } else {
+      setFavorites((data ?? []) as FavoriteItem[]);
+    }
+
+    setLoadingFavorites(false);
+  }
+
+  async function loadReviews() {
+    if (!userId) return;
+    setLoadingReviews(true);
+    setError(null);
+
+    const { data, error } = await supabase
+      .from("reviews")
+      .select("id, media_id, media_type, review, created_at")
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      setError(error.message);
+    } else {
+      setReviews((data ?? []) as ReviewItem[]);
+    }
+
+    setLoadingReviews(false);
+  }
+
+  async function onChangeAvatarPress() {
+    if (!userId) return;
+
+    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!permission.granted) {
+      Alert.alert("Permission needed", "Please allow photo library access.");
+      return;
+    }
+
+    const picked = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.8,
+    });
+
+    if (picked.canceled || !picked.assets?.length) return;
+
+    try {
+      setIsUploadingAvatar(true);
+      setError(null);
+
+      const asset = picked.assets[0];
+      const fileExt = (asset.uri.split(".").pop() || "jpg").toLowerCase();
+      const fileName = `avatar-${Date.now()}.${fileExt}`;
+      const storagePath = `${userId}/${fileName}`;
+
+      const fileRes = await fetch(asset.uri);
+      const fileBuffer = await fileRes.arrayBuffer();
+
+      const upload = await supabase.storage
+        .from("avatars")
+        .upload(storagePath, fileBuffer, {
+          contentType: asset.mimeType || `image/${fileExt}`,
+          upsert: true,
+        });
+
+      if (upload.error) throw upload.error;
+
+      const { data: publicData } = supabase.storage
+        .from("avatars")
+        .getPublicUrl(storagePath);
+
+      const publicUrl = publicData.publicUrl;
+
+      const update = await supabase
+        .from("profiles")
+        .update({ avatar_url: publicUrl, updated_at: new Date().toISOString() })
+        .eq("id", userId);
+
+      if (update.error) throw update.error;
+
+      setAvatarUrl(publicUrl);
+    } catch (e: any) {
+      setError(e?.message || "Failed to update avatar");
+    } finally {
+      setIsUploadingAvatar(false);
+    }
+  }
+
+  useEffect(() => {
+    if (!userId) return;
+    loadFavorites();
+    loadReviews();
+  }, [userId]);
+
+  useEffect(() => {
+    setAvatarUrl(profile?.avatar_url ?? null);
+  }, [profile?.avatar_url]);
+
+  function openMediaDetail(mediaId: number, mediaType: "movie" | "tv") {
+    router.push(`/details/${mediaId}?type=${mediaType}`);
+  }
 
   return (
     <LinearGradient
@@ -42,12 +196,29 @@ export default function ProfileScreen() {
           </Pressable>
         </View>
 
-        <Image
-          source={require("../../assets/images/MrBaggins.jpg")}
-          style={styles.avatar}
-        />
+        <Pressable
+          onPress={onChangeAvatarPress}
+          disabled={isUploadingAvatar}
+          style={styles.avatarWrapper}
+        >
+          {avatarUrl ? (
+            <Image source={{ uri: avatarUrl }} style={styles.avatar} />
+          ) : (
+            <View style={[styles.avatar, styles.avatarPlaceholder]}>
+              <Ionicons name="person" size={48} color="#d7d7e6" />
+            </View>
+          )}
 
-        <Text style={styles.name}>Mr. Underhill</Text>
+          <View style={styles.avatarEditBadge}>
+            {isUploadingAvatar ? (
+              <ActivityIndicator size="small" color="#fff" />
+            ) : (
+              <Ionicons name="camera" size={14} color="#fff" />
+            )}
+          </View>
+        </Pressable>
+
+        <Text style={styles.name}>{displayName}</Text>
 
         <View style={styles.statsRow}>
           <View style={styles.statItem}>
@@ -64,12 +235,85 @@ export default function ProfileScreen() {
           </View>
         </View>
 
-        <View style={styles.menuBlock}>
-          {MENU_ITEMS.map((item) => (
-            <Text key={item} style={styles.menuText}>
-              {item}
+        <View style={styles.tabRow}>
+          <Pressable
+            onPress={() => setActiveTab("favorites")}
+            style={[
+              styles.tabBtn,
+              activeTab === "favorites" && styles.tabBtnActive,
+            ]}
+          >
+            <Text
+              style={[
+                styles.tabText,
+                activeTab === "favorites" && styles.tabTextActive,
+              ]}
+            >
+              My Favorites
             </Text>
-          ))}
+          </Pressable>
+
+          <Pressable
+            onPress={() => setActiveTab("reviews")}
+            style={[
+              styles.tabBtn,
+              activeTab === "reviews" && styles.tabBtnActive,
+            ]}
+          >
+            <Text
+              style={[
+                styles.tabText,
+                activeTab === "reviews" && styles.tabTextActive,
+              ]}
+            >
+              My Reviews
+            </Text>
+          </Pressable>
+        </View>
+
+        <View style={styles.tabContent}>
+          {!!error && <Text style={styles.errorText}>{error}</Text>}
+
+          {activeTab === "favorites" ? (
+            loadingFavorites ? (
+              <ActivityIndicator size="small" color="#b73ad0" />
+            ) : favorites.length === 0 ? (
+              <Text style={styles.emptyText}>No favorites yet.</Text>
+            ) : (
+              favorites.map((item) => (
+                <Pressable
+                  key={item.id}
+                  style={styles.listCard}
+                  onPress={() =>
+                    openMediaDetail(item.media_id, item.media_type)
+                  }
+                >
+                  <Text style={styles.listTitle}>
+                    {item.title || "Untitled"}
+                  </Text>
+                  <Text style={styles.listMeta}>
+                    {item.media_type.toUpperCase()} • ID {item.media_id}
+                  </Text>
+                </Pressable>
+              ))
+            )
+          ) : loadingReviews ? (
+            <ActivityIndicator size="small" color="#b73ad0" />
+          ) : reviews.length === 0 ? (
+            <Text style={styles.emptyText}>No reviews yet.</Text>
+          ) : (
+            reviews.map((item) => (
+              <View key={item.id} style={styles.listCard}>
+                <Text style={styles.listMeta}>
+                  {item.media_type.toUpperCase()} • ID {item.media_id}
+                </Text>
+                <Text style={styles.reviewText}>{item.review}</Text>
+                <Text style={styles.dateText}>
+                  {new Date(item.created_at).toLocaleDateString()}
+                </Text>
+              </View>
+            ))
+          )}
         </View>
         <SignOutButton />
       </ScrollView>
@@ -158,5 +402,94 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     borderRadius: 18,
     backgroundColor: "#ffffff1f",
+  },
+  tabRow: {
+    marginTop: 24,
+    flexDirection: "row",
+    gap: 10,
+  },
+  tabBtn: {
+    flex: 1,
+    paddingVertical: 10,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: "#ffffff22",
+    backgroundColor: "#ffffff10",
+    alignItems: "center",
+  },
+  tabBtnActive: {
+    backgroundColor: "#b73ad0",
+    borderColor: "#b73ad0",
+  },
+  tabText: {
+    color: "#d7d7e6",
+    fontSize: 15,
+    fontWeight: "600",
+  },
+  tabTextActive: {
+    color: "#fff",
+  },
+  tabContent: {
+    marginTop: 18,
+    marginBottom: 32,
+  },
+  emptyText: {
+    color: "#d7d7e6",
+    fontSize: 14,
+  },
+  listCard: {
+    backgroundColor: "#ffffff12",
+    borderWidth: 1,
+    borderColor: "#ffffff1f",
+    borderRadius: 12,
+    padding: 12,
+    marginBottom: 10,
+  },
+  listTitle: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  listMeta: {
+    color: "#d7d7e6",
+    marginTop: 4,
+    fontSize: 13,
+  },
+  reviewText: {
+    color: "#f1f1f7",
+    marginTop: 8,
+    fontSize: 14,
+    lineHeight: 20,
+  },
+  dateText: {
+    color: "#b8b8ca",
+    marginTop: 8,
+    fontSize: 12,
+  },
+  errorText: {
+    color: "#ffd4d4",
+    marginBottom: 10,
+  },
+  avatarWrapper: {
+    alignSelf: "center",
+    marginTop: 26,
+  },
+  avatarPlaceholder: {
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#ffffff14",
+  },
+  avatarEditBadge: {
+    position: "absolute",
+    right: 4,
+    bottom: 4,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: "#b73ad0",
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 1,
+    borderColor: "#ffffff55",
   },
 });
