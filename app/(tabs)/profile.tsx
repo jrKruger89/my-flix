@@ -68,7 +68,10 @@ export default function ProfileScreen() {
 
   async function refreshProfileData() {
     if (!userId) {
-      Alert.alert("Unable to refresh", "Please sign in to refresh profile data.");
+      Alert.alert(
+        "Unable to refresh",
+        "Please sign in to refresh profile data.",
+      );
       return;
     }
     await Promise.all([loadFavorites(), loadReviews()]);
@@ -225,7 +228,10 @@ export default function ProfileScreen() {
   }, [profile?.avatar_url]);
 
   function openMediaDetail(mediaId: number, mediaType: "movie" | "tv") {
-    router.push(`/details/${mediaId}?type=${mediaType}`);
+    router.push({
+      pathname: "/media/[detail]",
+      params: { detail: String(mediaId), type: mediaType },
+    });
   }
 
   return (
