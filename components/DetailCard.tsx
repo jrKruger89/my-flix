@@ -84,7 +84,9 @@ export default function DetailCard({
         Format: ★ 9.3/10
         Only renders when rating data is available
       */}
-      {rating !== undefined && <Text style={styles.rating}>★ {rating}/10</Text>}
+      {rating !== undefined && (
+        <Text style={styles.rating}>★ {Math.round(rating)}/10</Text>
+      )}
 
       {/* 
         Conditional rendering: Display play time only if it exists

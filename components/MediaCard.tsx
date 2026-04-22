@@ -78,7 +78,7 @@ export default function MediaCard({
         Only render when a rating value is available
       */}
       {rating !== undefined ? (
-        <Text style={styles.rating}>★ {rating}</Text>
+        <Text style={styles.rating}>★ {Math.round(rating)}/10</Text>
       ) : null}
     </View>
   );
