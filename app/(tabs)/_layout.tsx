@@ -1,5 +1,67 @@
+import { colors } from "@/constants/theme";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { Tabs } from "expo-router";
+import { useEffect } from "react";
+import { Dimensions, Pressable, View } from "react-native";
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+} from "react-native-reanimated";
+
+// ==== Tabs Animation====
+const tabIcons = [
+  { name: "index", icon: "home-outline", activeIcon: "home-sharp" },
+  { name: "media", icon: "film-outline", activeIcon: "film" },
+  {
+    name: "profile",
+    icon: "person-circle-outline",
+    activeIcon: "person-circle",
+  },
+];
+
+const tabBarWidth = Dimensions.get("window").width - 40 - 6;
+const tabWidth = tabBarWidth / tabIcons.length;
+const bubbleWidth = 45;
+const bubblePosition = (index: number) =>
+  tabWidth * index + tabWidth / 2 - bubbleWidth / 2;
+
+function AnimatedTabBarIcon({ state, navigation }) {
+  const bubbleX = useSharedValue(bubblePosition(state.index));
+
+  useEffect(() => {
+    bubbleX.value = withSpring(bubblePosition(state.index), {
+      damping: 90,
+      stiffness: 700,
+    });
+  }, [bubbleX, state.index]);
+
+  const bubbleStyle = useAnimatedStyle(() => ({
+    transform: [{ translateX: bubbleX.value }],
+  }));
+
+  return (
+    <View style={styles.tabBar}>
+      <Animated.View style={[styles.bubble, bubbleStyle]} />
+      {tabIcons.map((tab, index) => {
+        const focused = state.index === index;
+        return (
+          <Pressable
+            key={tab.name}
+            style={styles.tab}
+            onPress={() => navigation.navigate(tab.name)}
+          >
+            <Ionicons
+              name={focused ? tab.activeIcon : tab.icon}
+              color={colors.txtColor}
+              size={24}
+            />
+          </Pressable>
+        );
+      })}
+    </View>
+  );
+}
 
 /**
  * TabLayout - Navigation layout component that creates a tabbed interface
@@ -8,86 +70,51 @@ import { Tabs } from "expo-router";
  */
 export default function TabLayout() {
   return (
-    // Tabs: Native tab bar navigator from expo-router
-    // Displays multiple screens accessible via a bottom tab bar
-    // Automatically handles switching between screens and persists state
-    <Tabs
-      screenOptions={{
-        // tabBarActiveTintColor: Color of focused tab icon and label
-        // Using gold (#ffd33d) to highlight the active tab
-        tabBarActiveTintColor: "#ffd33d",
-
-        // headerStyle: Customizes the header bar appearance at the top of each screen
-        // Set dark background (#25292e) to match app theme
-        headerStyle: {
-          backgroundColor: "#25292e",
-        },
-
-        // headerShadowVisible: Removes default shadow under header for cleaner look
-        headerShadowVisible: false,
-
-        // headerTintColor: Color of header text and back button
-        // Using white (#fff) for contrast against dark background
-        headerTintColor: "#fff",
-
-        // tabBarStyle: Customizes the entire tab bar appearance
-        // Matches header background for consistent dark theme
-        tabBarStyle: {
-          backgroundColor: "#25292e",
-        },
-      }}
-    >
-      {/* First Tab Screen: Home */}
+    <Tabs tabBar={(props) => <AnimatedTabBarIcon {...props} />}>
       <Tabs.Screen
-        name="index" // Route name corresponds to index.tsx file
-        options={{
-          title: "My Flix",
-          headerShown: false,
-          tabBarIcon: ({ color, focused }) => (
-            // Ionicons: Icon library from @expo/vector-icons
-            // Provides Material Design and Ionicons icons as React components
-            <Ionicons
-              // Conditional icon: Shows filled icon when active, outline when inactive
-              // home-sharp (filled) vs home-outline (unfilled)
-              name={focused ? "home-sharp" : "home-outline"}
-              // color: Automatically set to active/inactive color based on focus state
-              color={color}
-              // size: Icon size in logical pixels
-              size={24}
-            />
-          ),
-        }}
+        name="index"
+        options={{ title: "My Flix", headerShown: false }}
       />
-
-      {/* Second Tab Screen: Media */}
       <Tabs.Screen
         name="media"
-        options={{
-          title: "Media",
-          headerShown: false,
-          tabBarIcon: ({ color, focused }) => (
-            <Ionicons
-              name={focused ? "film" : "film-outline"}
-              color={color}
-              size={24}
-            />
-          ),
-        }}
+        options={{ title: "Media", headerShown: false }}
       />
       <Tabs.Screen
         name="profile"
-        options={{
-          title: "Profile",
-          headerShown: false,
-          tabBarIcon: ({ color, focused }) => (
-            <Ionicons
-              name={focused ? "person-circle" : "person-circle-outline"}
-              color={color}
-              size={24}
-            />
-          ),
-        }}
+        options={{ title: "Profile", headerShown: false }}
       />
     </Tabs>
   );
 }
+
+const styles = {
+  tabBar: {
+    flexDirection: "row",
+    backgroundColor: colors.accent2,
+    marginHorizontal: 20,
+    marginBottom: 30,
+    borderRadius: 40,
+    borderWidth: 3,
+    borderColor: colors.accent1,
+    height: 65,
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    alignItems: "center",
+    overflow: "hidden",
+  },
+  tab: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    height: "100%",
+  },
+  bubble: {
+    backgroundColor: colors.accent1,
+    borderRadius: 30,
+    width: bubbleWidth,
+    height: bubbleWidth,
+    position: "absolute",
+  },
+};
