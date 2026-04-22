@@ -9,7 +9,7 @@ export default function MediaLayout() {
         name="[detail]"
         options={{
           headerShown: true,
-          title: "Details",
+          title: "",
           headerStyle: {
             backgroundColor: colors.bgColor,
           },
