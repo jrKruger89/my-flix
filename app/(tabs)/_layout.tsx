@@ -34,7 +34,7 @@ function AnimatedTabBarIcon({ state, navigation }) {
       damping: 90,
       stiffness: 700,
     });
-  }, [state.index]);
+  }, [bubbleX, state.index]);
 
   const bubbleStyle = useAnimatedStyle(() => ({
     transform: [{ translateX: bubbleX.value }],
