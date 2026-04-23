@@ -1,4 +1,6 @@
+import { ScreenWrapper } from "@/components/ScreenWrapper";
 import SignOutButton from "@/components/social-auth-buttons/sign-out-button";
+import { bottom_padding } from "@/constants/theme";
 import { useAuthContext } from "@/hooks/use-auth-context";
 import { supabase } from "@/lib/supabase";
 import Ionicons from "@expo/vector-icons/Ionicons";
@@ -242,143 +244,151 @@ export default function ProfileScreen() {
       end={{ x: 1, y: 1 }}
       style={[styles.container, { paddingTop: insets.top }]}
     >
-      <ScrollView showsVerticalScrollIndicator={false}>
-        <View style={styles.headerRow}>
-          <Pressable style={styles.iconButton} onPress={goToHome}>
-            <Ionicons name="arrow-back" size={22} color="#fff" />
-          </Pressable>
-
-          <Text style={styles.headerTitle}>Profile</Text>
-
-          <Pressable style={styles.settingsButton} onPress={refreshProfileData}>
-            <Ionicons name="refresh-outline" size={22} color="#fff" />
-          </Pressable>
-        </View>
-
-        <Pressable
-          onPress={onChangeAvatarPress}
-          disabled={isUploadingAvatar}
-          style={styles.avatarWrapper}
+      <ScreenWrapper>
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ paddingBottom: bottom_padding }}
         >
-          {avatarUrl ? (
-            <Image source={{ uri: avatarUrl }} style={styles.avatar} />
-          ) : (
-            <View style={[styles.avatar, styles.avatarPlaceholder]}>
-              <Ionicons name="person" size={48} color="#d7d7e6" />
-            </View>
-          )}
+          <View style={styles.headerRow}>
+            <Pressable style={styles.iconButton} onPress={goToHome}>
+              <Ionicons name="arrow-back" size={22} color="#fff" />
+            </Pressable>
 
-          <View style={styles.avatarEditBadge}>
-            {isUploadingAvatar ? (
-              <ActivityIndicator size="small" color="#fff" />
+            <Text style={styles.headerTitle}>Profile</Text>
+
+            <Pressable
+              style={styles.settingsButton}
+              onPress={refreshProfileData}
+            >
+              <Ionicons name="refresh-outline" size={22} color="#fff" />
+            </Pressable>
+          </View>
+
+          <Pressable
+            onPress={onChangeAvatarPress}
+            disabled={isUploadingAvatar}
+            style={styles.avatarWrapper}
+          >
+            {avatarUrl ? (
+              <Image source={{ uri: avatarUrl }} style={styles.avatar} />
             ) : (
-              <Ionicons name="camera" size={14} color="#fff" />
+              <View style={[styles.avatar, styles.avatarPlaceholder]}>
+                <Ionicons name="person" size={48} color="#d7d7e6" />
+              </View>
+            )}
+
+            <View style={styles.avatarEditBadge}>
+              {isUploadingAvatar ? (
+                <ActivityIndicator size="small" color="#fff" />
+              ) : (
+                <Ionicons name="camera" size={14} color="#fff" />
+              )}
+            </View>
+          </Pressable>
+
+          <Text style={styles.name}>{displayName}</Text>
+
+          <View style={styles.statsRow}>
+            <View style={styles.statItem}>
+              <Ionicons name="heart-outline" size={16} color={"#d7d7e6"} />
+              <Text style={styles.statValue}>{favorites.length}</Text>
+              <Text style={styles.statLabel}>Favorites</Text>
+            </View>
+            <View style={styles.statItem}>
+              <Ionicons
+                name="chatbubble-ellipses-outline"
+                size={16}
+                color={"#d7d7e6"}
+              />
+              <Text style={styles.statValue}>{reviews.length}</Text>
+              <Text style={styles.statLabel}>Reviews</Text>
+            </View>
+          </View>
+
+          <View style={styles.tabRow}>
+            <Pressable
+              onPress={() => setActiveTab("favorites")}
+              style={[
+                styles.tabBtn,
+                activeTab === "favorites" && styles.tabBtnActive,
+              ]}
+            >
+              <Text
+                style={[
+                  styles.tabText,
+                  activeTab === "favorites" && styles.tabTextActive,
+                ]}
+              >
+                My Favorites
+              </Text>
+            </Pressable>
+
+            <Pressable
+              onPress={() => setActiveTab("reviews")}
+              style={[
+                styles.tabBtn,
+                activeTab === "reviews" && styles.tabBtnActive,
+              ]}
+            >
+              <Text
+                style={[
+                  styles.tabText,
+                  activeTab === "reviews" && styles.tabTextActive,
+                ]}
+              >
+                My Reviews
+              </Text>
+            </Pressable>
+          </View>
+
+          <View style={styles.tabContent}>
+            {!!error && <Text style={styles.errorText}>{error}</Text>}
+
+            {activeTab === "favorites" ? (
+              loadingFavorites ? (
+                <ActivityIndicator size="small" color="#b73ad0" />
+              ) : favorites.length === 0 ? (
+                <Text style={styles.emptyText}>No favorites yet.</Text>
+              ) : (
+                favorites.map((item) => (
+                  <Pressable
+                    key={item.id}
+                    style={styles.listCard}
+                    onPress={() =>
+                      openMediaDetail(item.media_id, item.media_type)
+                    }
+                  >
+                    <Text style={styles.listTitle}>
+                      {item.title || "Untitled"}
+                    </Text>
+                    <Text style={styles.listMeta}>
+                      {item.media_type.toUpperCase()} • ID {item.media_id}
+                    </Text>
+                  </Pressable>
+                ))
+              )
+            ) : loadingReviews ? (
+              <ActivityIndicator size="small" color="#b73ad0" />
+            ) : reviews.length === 0 ? (
+              <Text style={styles.emptyText}>No reviews yet.</Text>
+            ) : (
+              reviews.map((item) => (
+                <View key={item.id} style={styles.listCard}>
+                  <Text style={styles.listMeta}>
+                    {item.media_type.toUpperCase()} •{" "}
+                    {item.media_title || "Unknown"}
+                  </Text>
+                  <Text style={styles.reviewText}>{item.review}</Text>
+                  <Text style={styles.dateText}>
+                    {new Date(item.created_at).toLocaleDateString()}
+                  </Text>
+                </View>
+              ))
             )}
           </View>
-        </Pressable>
-
-        <Text style={styles.name}>{displayName}</Text>
-
-        <View style={styles.statsRow}>
-          <View style={styles.statItem}>
-            <Ionicons name="heart-outline" size={16} color={"#d7d7e6"} />
-            <Text style={styles.statValue}>{favorites.length}</Text>
-            <Text style={styles.statLabel}>Favorites</Text>
-          </View>
-          <View style={styles.statItem}>
-            <Ionicons
-              name="chatbubble-ellipses-outline"
-              size={16}
-              color={"#d7d7e6"}
-            />
-            <Text style={styles.statValue}>{reviews.length}</Text>
-            <Text style={styles.statLabel}>Reviews</Text>
-          </View>
-        </View>
-
-        <View style={styles.tabRow}>
-          <Pressable
-            onPress={() => setActiveTab("favorites")}
-            style={[
-              styles.tabBtn,
-              activeTab === "favorites" && styles.tabBtnActive,
-            ]}
-          >
-            <Text
-              style={[
-                styles.tabText,
-                activeTab === "favorites" && styles.tabTextActive,
-              ]}
-            >
-              My Favorites
-            </Text>
-          </Pressable>
-
-          <Pressable
-            onPress={() => setActiveTab("reviews")}
-            style={[
-              styles.tabBtn,
-              activeTab === "reviews" && styles.tabBtnActive,
-            ]}
-          >
-            <Text
-              style={[
-                styles.tabText,
-                activeTab === "reviews" && styles.tabTextActive,
-              ]}
-            >
-              My Reviews
-            </Text>
-          </Pressable>
-        </View>
-
-        <View style={styles.tabContent}>
-          {!!error && <Text style={styles.errorText}>{error}</Text>}
-
-          {activeTab === "favorites" ? (
-            loadingFavorites ? (
-              <ActivityIndicator size="small" color="#b73ad0" />
-            ) : favorites.length === 0 ? (
-              <Text style={styles.emptyText}>No favorites yet.</Text>
-            ) : (
-              favorites.map((item) => (
-                <Pressable
-                  key={item.id}
-                  style={styles.listCard}
-                  onPress={() =>
-                    openMediaDetail(item.media_id, item.media_type)
-                  }
-                >
-                  <Text style={styles.listTitle}>
-                    {item.title || "Untitled"}
-                  </Text>
-                  <Text style={styles.listMeta}>
-                    {item.media_type.toUpperCase()} • ID {item.media_id}
-                  </Text>
-                </Pressable>
-              ))
-            )
-          ) : loadingReviews ? (
-            <ActivityIndicator size="small" color="#b73ad0" />
-          ) : reviews.length === 0 ? (
-            <Text style={styles.emptyText}>No reviews yet.</Text>
-          ) : (
-            reviews.map((item) => (
-              <View key={item.id} style={styles.listCard}>
-                <Text style={styles.listMeta}>
-                  {item.media_type.toUpperCase()} •{" "}
-                  {item.media_title || "Unknown"}
-                </Text>
-                <Text style={styles.reviewText}>{item.review}</Text>
-                <Text style={styles.dateText}>
-                  {new Date(item.created_at).toLocaleDateString()}
-                </Text>
-              </View>
-            ))
-          )}
-        </View>
-        <SignOutButton />
-      </ScrollView>
+          <SignOutButton />
+        </ScrollView>
+      </ScreenWrapper>
     </LinearGradient>
   );
 }
