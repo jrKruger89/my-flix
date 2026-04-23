@@ -25,11 +25,13 @@ interface Review {
 interface ReviewComponentProps {
   mediaId: number;
   mediaType: "movie" | "tv";
+  mediaTitle: string;
 }
 
 export default function ReviewComponent({
   mediaId,
   mediaType,
+  mediaTitle,
 }: ReviewComponentProps) {
   const { claims } = useAuthContext();
   const userId = claims?.sub;
@@ -137,6 +139,7 @@ export default function ReviewComponent({
         user_id: userId,
         media_id: mediaId,
         media_type: mediaType,
+        media_title: mediaTitle,
         review: newReview.trim(),
         rating: parsedRating,
       });
