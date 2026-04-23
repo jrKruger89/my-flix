@@ -1,5 +1,6 @@
 import DetailCard from "@/components/DetailCard";
 import ReviewComponent from "@/components/ReviewComponent";
+import { bottom_padding } from "@/constants/theme";
 import { MediaItem, transformTMDBToMedia } from "@/services/formatMedia";
 import { getMovieDetails, getTVDetails } from "@/services/tmdbApi";
 import { useLocalSearchParams } from "expo-router";
@@ -111,7 +112,10 @@ export default function DetailScreen() {
 
   // Main detail view with movie data
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={{ paddingBottom: bottom_padding }}
+    >
       <DetailCard {...movieData} />
       {movieData && (
         <ReviewComponent
