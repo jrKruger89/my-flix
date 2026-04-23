@@ -3,7 +3,7 @@ import { ScreenWrapper } from "@/components/ScreenWrapper";
 import { colors } from "@/constants/theme";
 import { MediaItem, transformTMDBToMedia } from "@/services/formatMedia";
 import { getPopularMovies, getPopularTV } from "@/services/tmdbApi";
-import { useRouter } from "expo-router";
+import { useFocusEffect, useRouter } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
@@ -22,6 +22,7 @@ export default function MediaScreen() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isShowingTV, setIsShowingTV] = useState(false);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   const loadMediaData = useCallback(async () => {
     try {
@@ -44,6 +45,12 @@ export default function MediaScreen() {
   useEffect(() => {
     loadMediaData();
   }, [loadMediaData]);
+
+  useFocusEffect(
+    useCallback(() => {
+      setRefreshTrigger((prev) => prev + 1);
+    }, []),
+  );
 
   const handleMediaPress = (id: string) => {
     router.push(`/media/${id}?type=${isShowingTV ? "tv" : "movie"}`);
@@ -79,6 +86,28 @@ export default function MediaScreen() {
           <Text style={styles.toggleLabel}>TV Shows</Text>
         </View>
 
+      <FlatList
+        data={mediaArray}
+        numColumns={2}
+        keyExtractor={(item) => item.id}
+        columnWrapperStyle={styles.row}
+        contentContainerStyle={styles.listContent}
+        renderItem={({ item }) => (
+          <Pressable
+            onPress={() => handleMediaPress(item.id)}
+            style={styles.cardWrapper}
+          >
+            <MediaCard
+              id={item.id}
+              title={item.title}
+              poster={item.poster}
+              rating={item.rating}
+              mediaType={isShowingTV ? "tv" : "movie"}
+              refreshTrigger={refreshTrigger}
+            />
+          </Pressable>
+        )}
+      />
         <FlatList
           data={mediaArray}
           numColumns={2}

@@ -1,6 +1,19 @@
 import { colors, fonts } from "@/constants/theme";
-import { Image, StyleSheet, Text, View } from "react-native";
+import { useState } from "react";
+import {
+  Alert,
+  Image,
+  Modal,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import FavoriteButton from "./FavoriteButton";
+
+import { useWatchProgress } from "@/hooks/use-watch-progress";
+import ProgressBar from "./ProgressBar";
 
 /**
  * DetailCardProps - TypeScript interface defining all optional props for DetailCard
@@ -43,6 +56,43 @@ export default function DetailCard({
   numberOfEpisodes,
   network,
 }: DetailCardProps) {
+  const { progress, updateProgress, clearProgress } = useWatchProgress(
+    parseInt(id),
+    mediaType || "movie",
+  );
+  const [showProgressModal, setShowProgressModal] = useState(false);
+  const [inputMinutes, setInputMinutes] = useState("0");
+
+  const parsePlayTimeMinutes = (duration?: string) => {
+    if (!duration || duration === "Unknown") return 0;
+
+    const match = duration.match(/(?:(\d+)h\s*)?(\d+)m/);
+    if (match) {
+      const hours = parseInt(match[1] || "0", 10);
+      const minutes = parseInt(match[2] || "0", 10);
+      return hours * 60 + minutes;
+    }
+
+    const fallbackMinutes = parseInt(duration, 10);
+    return Number.isNaN(fallbackMinutes) ? 0 : fallbackMinutes;
+  };
+
+  const playTimeMinutes = parsePlayTimeMinutes(playTime);
+
+  const handleUpdateProgress = () => {
+    const minutes = parseInt(inputMinutes) || 0;
+    if (minutes < 0 || minutes > playTimeMinutes) {
+      Alert.alert(
+        "Invalid",
+        `Enter a value between 0 and ${playTimeMinutes} minutes`,
+      );
+      return;
+    }
+    updateProgress(minutes, playTimeMinutes);
+    setShowProgressModal(false);
+    setInputMinutes("0");
+  };
+
   return (
     // View: Root container for all detail content
     // Organizes all child elements (poster, text, metadata) vertically
@@ -84,7 +134,9 @@ export default function DetailCard({
         Format: ★ 9.3/10
         Only renders when rating data is available
       */}
-      {rating !== undefined && <Text style={styles.rating}>★ {rating}/10</Text>}
+      {rating !== undefined && (
+        <Text style={styles.rating}>★ {Math.round(rating)}/10</Text>
+      )}
 
       {/* 
         Conditional rendering: Display play time only if it exists
@@ -150,6 +202,112 @@ export default function DetailCard({
         Conditional rendering: Only shows if network is available
       */}
       {network && <Text style={styles.details}>Network: {network}</Text>}
+
+      {/* 
+        Watch progress: Displays progress bar for the current watch session
+        Only renders if watchProgress is available
+      */}
+      {progress && playTimeMinutes > 0 && (
+        <ProgressBar
+          minutesWatched={progress.minutesWatched}
+          totalRuntime={playTimeMinutes}
+        />
+      )}
+
+      {/* 
+        Update Progress Button 
+        Only renders if playTime is greater than 0
+      */}
+      {playTimeMinutes > 0 && (
+        <View style={styles.progressButtonRow}>
+          <TouchableOpacity
+            style={styles.updateProgressButton}
+            onPress={() => {
+              setInputMinutes(progress?.minutesWatched.toString() || "0");
+              setShowProgressModal(true);
+            }}
+          >
+            <Text style={styles.updateProgressButtonText}>
+              {progress ? "✏️ Update" : "➕ Add"} Progress
+            </Text>
+          </TouchableOpacity>
+          {progress && (
+            <TouchableOpacity
+              style={styles.clearProgressButton}
+              onPress={() => {
+                Alert.alert("Clear Progress", "Remove watch progress?", [
+                  { text: "Cancel", style: "cancel" },
+                  {
+                    text: "Clear",
+                    style: "destructive",
+                    onPress: clearProgress,
+                  },
+                ]);
+              }}
+            >
+              <Text style={styles.clearProgressButtonText}>✕</Text>
+            </TouchableOpacity>
+          )}
+        </View>
+      )}
+
+      {/* 
+        Progress Input Modal 
+        Only renders if watchProgress is available
+      */}
+      <Modal visible={showProgressModal} transparent animationType="fade">
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Update Watch Progress</Text>
+            <Text style={styles.modalSubtitle}>
+              Minutes watched (0 - {playTimeMinutes}):
+            </Text>
+            <TextInput
+              style={styles.progressInput}
+              placeholder="0"
+              placeholderTextColor="rgba(255,255,255,0.5)"
+              value={inputMinutes}
+              onChangeText={(text) => {
+                const numOnly = text.replace(/[^0-9]/g, "");
+                // Allow any number up to playtime
+                if (numOnly === "" || parseInt(numOnly) <= playTimeMinutes) {
+                  setInputMinutes(numOnly);
+                }
+              }}
+              keyboardType="number-pad"
+              editable={true}
+            />
+
+            {/* Display formatted time */}
+            {inputMinutes !== "" && (
+              <View style={styles.timeDisplayContainer}>
+                <Text style={styles.timeDisplay}>
+                  {Math.floor(parseInt(inputMinutes) / 60)}h{" "}
+                  {parseInt(inputMinutes) % 60}m
+                </Text>
+                <Text style={styles.timeMax}>
+                  out of {Math.floor(playTimeMinutes / 60)}h{" "}
+                  {playTimeMinutes % 60}m
+                </Text>
+              </View>
+            )}
+            <View style={styles.modalButtonRow}>
+              <TouchableOpacity
+                style={styles.modalCancelButton}
+                onPress={() => setShowProgressModal(false)}
+              >
+                <Text style={styles.modalButtonText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.modalSubmitButton}
+                onPress={handleUpdateProgress}
+              >
+                <Text style={styles.modalButtonText}>Save</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -216,5 +374,197 @@ const styles = StyleSheet.create({
     top: 8,
     right: 8,
     zIndex: 10,
+  },
+
+  watchProgressContainer: {
+    position: "relative",
+    width: "100%",
+    marginBottom: 16,
+  },
+
+  watchProgressButton: {
+    position: "relative",
+    top: 8,
+    right: 8,
+    zIndex: 10,
+  },
+
+  watchProgressButtonLabel: {
+    fontFamily: fonts.regular,
+    fontSize: 12,
+    color: colors.txtColor,
+  },
+
+  progressModal: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(0, 0, 0, 0.8)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  progressModalLabel: {
+    fontFamily: fonts.regular,
+    fontSize: 18,
+    color: colors.txtColor,
+  },
+
+  progressModalInput: {
+    fontFamily: fonts.regular,
+    fontSize: 14,
+    color: colors.txtColor,
+    textAlign: "center",
+  },
+
+  progressModalButtons: {
+    position: "relative",
+    top: 10,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  progressModalButton: {
+    position: "relative",
+    top: 0,
+    width: 80,
+    height: 30,
+    backgroundColor: colors.accent1,
+    borderRadius: 15,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  progressModalButtonLabel: {
+    fontFamily: fonts.regular,
+    fontSize: 12,
+    color: colors.txtColor,
+  },
+
+  progressButtonRow: {
+    position: "relative",
+    top: 0,
+    right: 8,
+    zIndex: 10,
+    flexDirection: "row",
+    gap: 8,
+    marginTop: 4,
+    marginBottom: 12,
+  },
+
+  updateProgressButton: {
+    position: "relative",
+    top: 0,
+    width: 80,
+    minHeight: 48,
+    backgroundColor: colors.accent1,
+    borderRadius: 15,
+    justifyContent: "center",
+    alignItems: "center",
+    flex: 1,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+  },
+
+  updateProgressButtonText: {
+    color: "#fff",
+    fontSize: 14,
+    fontFamily: fonts.regular,
+    fontWeight: "bold",
+    textAlign: "center",
+  },
+
+  clearProgressButton: {
+    paddingHorizontal: 12,
+    paddingVertical: 12,
+    borderRadius: 8,
+    backgroundColor: "rgba(255,255,255,0.1)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  clearProgressButtonText: {
+    color: "#ff6b6b",
+    fontSize: 16,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.7)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalContent: {
+    backgroundColor: colors.bgColor,
+    borderRadius: 12,
+    padding: 20,
+    width: "80%",
+    borderWidth: 1,
+    borderColor: colors.accent1,
+  },
+  modalTitle: {
+    color: "#fff",
+    fontSize: 16,
+    fontFamily: fonts.regular,
+    fontWeight: "bold",
+    marginBottom: 8,
+  },
+  modalSubtitle: {
+    color: "rgba(255,255,255,0.7)",
+    fontSize: 12,
+    fontFamily: fonts.regular,
+    marginBottom: 12,
+  },
+  progressInput: {
+    backgroundColor: "rgba(255,255,255,0.1)",
+    borderWidth: 1,
+    borderColor: colors.accent1,
+    borderRadius: 8,
+    color: "#fff",
+    padding: 12,
+    marginBottom: 16,
+    fontFamily: fonts.regular,
+    fontSize: 16,
+  },
+  modalButtonRow: {
+    flexDirection: "row",
+    gap: 10,
+  },
+  modalCancelButton: {
+    flex: 1,
+    paddingVertical: 12,
+    borderRadius: 8,
+    backgroundColor: "rgba(255,255,255,0.1)",
+    alignItems: "center",
+  },
+  modalSubmitButton: {
+    flex: 1,
+    paddingVertical: 12,
+    borderRadius: 8,
+    backgroundColor: colors.accent1,
+    alignItems: "center",
+  },
+  modalButtonText: {
+    color: "#fff",
+    fontSize: 14,
+    fontFamily: fonts.regular,
+    fontWeight: "bold",
+  },
+  timeDisplayContainer: {
+    marginBottom: 16,
+    alignItems: "center",
+  },
+  timeDisplay: {
+    color: colors.accent1,
+    fontSize: 18,
+    fontFamily: fonts.regular,
+    fontWeight: "bold",
+  },
+  timeMax: {
+    color: "rgba(255,255,255,0.6)",
+    fontSize: 12,
+    fontFamily: fonts.regular,
+    marginTop: 4,
   },
 });

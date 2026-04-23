@@ -1,6 +1,8 @@
 import { colors, fonts } from "@/constants/theme";
+import { useWatchProgress } from "@/hooks/use-watch-progress";
 import { Image, StyleSheet, Text, View } from "react-native";
 import FavoriteButton from "./FavoriteButton";
+import ProgressBar from "./ProgressBar";
 
 /**
  * MediaCardProps - TypeScript interface for MediaCard component props
@@ -13,6 +15,7 @@ interface MediaCardProps {
   poster?: string; // URL to the poster/cover image
   rating?: number; // Numerical rating (e.g., 9.3)
   mediaType?: "movie" | "tv";
+  refreshTrigger?: number;
 }
 
 /**
@@ -27,7 +30,14 @@ export default function MediaCard({
   poster,
   rating,
   mediaType = "movie",
+  refreshTrigger,
 }: MediaCardProps) {
+  const { progress } = useWatchProgress(
+    parseInt(id),
+    mediaType,
+    refreshTrigger,
+  );
+
   return (
     // View: Card container that holds poster, title, and rating
     // Fixed width (48%) ensures proper grid layout with spacing
@@ -58,6 +68,16 @@ export default function MediaCard({
         )}
       </View>
 
+      {progress ? (
+        <View style={styles.progressContainer}>
+          <ProgressBar
+            minutesWatched={progress.minutesWatched}
+            totalRuntime={progress.totalRuntime}
+            height={4}
+          />
+        </View>
+      ) : null}
+
       {/* 
         Title: Movie name text
         numberOfLines={2}: Truncates title to maximum 2 lines
@@ -78,7 +98,7 @@ export default function MediaCard({
         Only render when a rating value is available
       */}
       {rating !== undefined ? (
-        <Text style={styles.rating}>★ {rating}</Text>
+        <Text style={styles.rating}>★ {Math.round(rating)}/10</Text>
       ) : null}
     </View>
   );
@@ -114,6 +134,10 @@ const styles = StyleSheet.create({
     fontFamily: fonts.regular, // K2D-Regular from theme
     fontSize: 11, // Very small text for compact display
     color: colors.accent1, // Purple accent color (#B030B0) stands out on dark bg
+  },
+
+  progressContainer: {
+    marginTop: 8,
   },
 
   posterContainer: {
