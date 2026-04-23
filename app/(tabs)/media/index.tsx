@@ -1,6 +1,6 @@
 import MediaCard from "@/components/MediaCard";
 import { ScreenWrapper } from "@/components/ScreenWrapper";
-import { bottom_padding, colors } from "@/constants/theme";
+import { colors } from "@/constants/theme";
 import { MediaItem, transformTMDBToMedia } from "@/services/formatMedia";
 import { getPopularMovies, getPopularTV } from "@/services/tmdbApi";
 import { useFocusEffect, useRouter } from "expo-router";
@@ -86,37 +86,12 @@ export default function MediaScreen() {
           <Text style={styles.toggleLabel}>TV Shows</Text>
         </View>
 
-      <FlatList
-        data={mediaArray}
-        numColumns={2}
-        keyExtractor={(item) => item.id}
-        columnWrapperStyle={styles.row}
-        contentContainerStyle={styles.listContent}
-        renderItem={({ item }) => (
-          <Pressable
-            onPress={() => handleMediaPress(item.id)}
-            style={styles.cardWrapper}
-          >
-            <MediaCard
-              id={item.id}
-              title={item.title}
-              poster={item.poster}
-              rating={item.rating}
-              mediaType={isShowingTV ? "tv" : "movie"}
-              refreshTrigger={refreshTrigger}
-            />
-          </Pressable>
-        )}
-      />
         <FlatList
           data={mediaArray}
           numColumns={2}
           keyExtractor={(item) => item.id}
           columnWrapperStyle={styles.row}
-          contentContainerStyle={[
-            styles.listContent,
-            { paddingBottom: bottom_padding },
-          ]}
+          contentContainerStyle={styles.listContent}
           renderItem={({ item }) => (
             <Pressable
               onPress={() => handleMediaPress(item.id)}
@@ -127,6 +102,8 @@ export default function MediaScreen() {
                 title={item.title}
                 poster={item.poster}
                 rating={item.rating}
+                mediaType={isShowingTV ? "tv" : "movie"}
+                refreshTrigger={refreshTrigger}
               />
             </Pressable>
           )}
