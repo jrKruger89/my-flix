@@ -121,6 +121,7 @@ export default function DetailScreen() {
         <ReviewComponent
           mediaId={parseInt(detail as string, 10)}
           mediaType={mediaType}
+          mediaTitle={movieData.title}
         />
       )}
     </ScrollView>

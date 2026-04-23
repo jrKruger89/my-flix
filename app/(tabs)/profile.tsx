@@ -35,6 +35,7 @@ type ReviewItem = {
   media_type: "movie" | "tv";
   review: string;
   created_at: string;
+  media_title: string | null;
 };
 
 export default function ProfileScreen() {
@@ -113,7 +114,7 @@ export default function ProfileScreen() {
     try {
       const { data, error } = await supabase
         .from("reviews")
-        .select("id, media_id, media_type, review, created_at")
+        .select("id, media_id, media_type, review, created_at, media_title")
         .eq("user_id", userId)
         .order("created_at", { ascending: false });
 
