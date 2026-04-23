@@ -1,5 +1,6 @@
 import { ScreenWrapper } from "@/components/ScreenWrapper";
 import MediaRow from "@/components/mediaRow";
+import { bottom_padding } from "@/constants/theme";
 import { useAuthContext } from "@/hooks/use-auth-context";
 import { useMediaData } from "@/hooks/use-media-data";
 import { supabase } from "@/lib/supabase";
@@ -8,6 +9,7 @@ import { getTrendingMovies } from "@/services/tmdbApi";
 import { LinearGradient } from "expo-linear-gradient";
 import React, { useEffect, useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
+
 /**
  * Home Screen (Index) - The landing page of the application
  * Displays welcome content and provides navigation to other screens
@@ -78,15 +80,17 @@ export default function Index() {
       style={styles.container}
     >
       <ScreenWrapper>
-        <ScrollView>
+        <ScrollView contentContainerStyle={{ paddingBottom: bottom_padding }}>
           <View style={styles.container}>
             <MediaRow
               title="Currently Watching"
+              emptyMessage="You're not currently watching any movies or series yet!"
               mediaArray={mediaArray}
               handleMediaPress={handleMediaPress}
             />
             <MediaRow
               title="Watchlist"
+              emptyMessage="You haven't added any movies or series yet!"
               mediaArray={favorites.map((item) => ({
                 ...item,
                 id: item.media_id,
@@ -114,13 +118,6 @@ const styles = StyleSheet.create({
   // container: Main view container styles
   container: {
     flex: 1,
-    padding: 10,
-  },
-  cardWrapper: {
-    marginHorizontal: 10,
-
-    borderRadius: 10,
-    overflow: "hidden",
-    width: 140,
+    padding: 5,
   },
 });

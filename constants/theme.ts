@@ -54,3 +54,5 @@ export const colors = {
   // Provides variation while maintaining color harmony and theme cohesion
   accent2: "#602080",
 };
+
+export const bottom_padding = 110;

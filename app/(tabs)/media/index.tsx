@@ -1,6 +1,6 @@
 import MediaCard from "@/components/MediaCard";
 import { ScreenWrapper } from "@/components/ScreenWrapper";
-import { colors } from "@/constants/theme";
+import { bottom_padding, colors } from "@/constants/theme";
 import { MediaItem, transformTMDBToMedia } from "@/services/formatMedia";
 import { getPopularMovies, getPopularTV } from "@/services/tmdbApi";
 import { useRouter } from "expo-router";
@@ -84,7 +84,10 @@ export default function MediaScreen() {
           numColumns={2}
           keyExtractor={(item) => item.id}
           columnWrapperStyle={styles.row}
-          contentContainerStyle={styles.listContent}
+          contentContainerStyle={[
+            styles.listContent,
+            { paddingBottom: bottom_padding },
+          ]}
           renderItem={({ item }) => (
             <Pressable
               onPress={() => handleMediaPress(item.id)}
