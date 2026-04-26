@@ -5,7 +5,12 @@ import { useAuthContext } from "@/hooks/use-auth-context";
 import { useMediaData } from "@/hooks/use-media-data";
 import { supabase } from "@/lib/supabase";
 import { MediaItem, transformTMDBToMedia } from "@/services/formatMedia";
-import { getTrendingMovies } from "@/services/tmdbApi";
+import {
+  getMovieDetails,
+  getTrendingMovies,
+  getTVDetails,
+} from "@/services/tmdbApi";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { LinearGradient } from "expo-linear-gradient";
 import React, { useEffect, useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
@@ -30,6 +35,7 @@ export default function Index() {
   const userId = claims?.sub;
   const [favorites, setFavorites] = useState<FavoriteItem[]>([]);
   const [trending, setTrending] = useState<MediaItem[]>([]);
+  const [currentlyWatching, setCurrentlyWatching] = useState<MediaItem[]>([]);
 
   useEffect(() => {
     async function loadTrending() {
@@ -72,6 +78,31 @@ export default function Index() {
     };
   }, [userId]);
 
+  useEffect(() => {
+    async function loadCurrentlyWatching() {
+      const stored = await AsyncStorage.getItem("watch_progress");
+      const progressMap = stored ? JSON.parse(stored) : {};
+
+      const inProgress = Object.values(progressMap).filter(
+        (item: any) =>
+          item.minutesWatched > 0 && item.minutesWatched < item.totalRuntime,
+      );
+
+      const mediaItems = await Promise.all(
+        inProgress.map(async (item: any) => {
+          const data =
+            item.mediaType === "tv"
+              ? await getTVDetails(item.mediaId)
+              : await getMovieDetails(item.mediaId);
+          return transformTMDBToMedia(data);
+        }),
+      );
+
+      setCurrentlyWatching(mediaItems);
+    }
+    loadCurrentlyWatching();
+  }, []);
+
   return (
     <LinearGradient
       colors={["#171739", "#3b1f63", "#16193a"]}
@@ -85,7 +116,7 @@ export default function Index() {
             <MediaRow
               title="Currently Watching"
               emptyMessage="You're not currently watching any movies or series yet!"
-              mediaArray={mediaArray}
+              mediaArray={currentlyWatching}
               handleMediaPress={handleMediaPress}
             />
             <MediaRow
