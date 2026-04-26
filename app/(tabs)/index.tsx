@@ -12,7 +12,8 @@ import {
 } from "@/services/tmdbApi";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { LinearGradient } from "expo-linear-gradient";
-import React, { useEffect, useState } from "react";
+import { useFocusEffect } from "expo-router";
+import React, { useCallback, useEffect, useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 
 /**
@@ -30,7 +31,7 @@ type FavoriteItem = {
 };
 
 export default function Index() {
-  const { mediaArray, handleMediaPress } = useMediaData();
+  const { handleMediaPress } = useMediaData();
   const { claims } = useAuthContext();
   const userId = claims?.sub;
   const [favorites, setFavorites] = useState<FavoriteItem[]>([]);
@@ -78,30 +79,32 @@ export default function Index() {
     };
   }, [userId]);
 
-  useEffect(() => {
-    async function loadCurrentlyWatching() {
-      const stored = await AsyncStorage.getItem("watch_progress");
-      const progressMap = stored ? JSON.parse(stored) : {};
+  useFocusEffect(
+    useCallback(() => {
+      async function loadCurrentlyWatching() {
+        const stored = await AsyncStorage.getItem("watch_progress");
+        const progressMap = stored ? JSON.parse(stored) : {};
 
-      const inProgress = Object.values(progressMap).filter(
-        (item: any) =>
-          item.minutesWatched > 0 && item.minutesWatched < item.totalRuntime,
-      );
+        const inProgress = Object.values(progressMap).filter(
+          (item: any) =>
+            item.minutesWatched > 0 && item.minutesWatched < item.totalRuntime,
+        );
 
-      const mediaItems = await Promise.all(
-        inProgress.map(async (item: any) => {
-          const data =
-            item.mediaType === "tv"
-              ? await getTVDetails(item.mediaId)
-              : await getMovieDetails(item.mediaId);
-          return transformTMDBToMedia(data);
-        }),
-      );
+        const mediaItems = await Promise.all(
+          inProgress.map(async (item: any) => {
+            const data =
+              item.mediaType === "tv"
+                ? await getTVDetails(item.mediaId)
+                : await getMovieDetails(item.mediaId);
+            return transformTMDBToMedia(data);
+          }),
+        );
 
-      setCurrentlyWatching(mediaItems);
-    }
-    loadCurrentlyWatching();
-  }, []);
+        setCurrentlyWatching(mediaItems);
+      }
+      loadCurrentlyWatching();
+    }, []),
+  );
 
   return (
     <LinearGradient
