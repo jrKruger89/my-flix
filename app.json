@@ -47,7 +47,8 @@
           "microphonePermission": "Allow my-flix to access your microphone when recording videos."
         }
       ],
-      "expo-sqlite"
+      "expo-sqlite",
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true,
