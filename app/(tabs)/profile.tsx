@@ -21,6 +21,7 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+// Type for user's favorite media items (movies/TV shows)
 type FavoriteItem = {
   id: number;
   media_id: number;
@@ -30,6 +31,7 @@ type FavoriteItem = {
   created_at: string;
 };
 
+// Type for user's written reviews
 type ReviewItem = {
   id: number;
   media_id: number;
@@ -40,25 +42,37 @@ type ReviewItem = {
 };
 
 export default function ProfileScreen() {
+  // Get authenticated user info and profile data from auth context
   const { claims, profile } = useAuthContext();
   const userId = claims?.sub;
+
+  // Track which tab is active (favorites or reviews)
   const [activeTab, setActiveTab] = useState<"favorites" | "reviews">(
     "favorites",
   );
 
+  // Avatar URL state and upload loading state
   const [avatarUrl, setAvatarUrl] = useState<string | null>(
     profile?.avatar_url ?? null,
   );
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+
+  // Data storage for user's favorites and reviews
   const [favorites, setFavorites] = useState<FavoriteItem[]>([]);
   const [reviews, setReviews] = useState<ReviewItem[]>([]);
+
+  // Loading states for async data fetching
   const [loadingFavorites, setLoadingFavorites] = useState(false);
   const [loadingReviews, setLoadingReviews] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Safe area insets for notch/safe zone handling
   const insets = useSafeAreaInsets();
 
+  // Router for navigation
   const router = useRouter();
 
+  // Derive display name from profile username or email
   const displayName = useMemo(() => {
     if (profile?.username) return profile.username;
     const email = claims?.email as string | undefined;
@@ -66,10 +80,12 @@ export default function ProfileScreen() {
     return "User";
   }, [profile?.username, claims?.email]);
 
+  // Navigate back to home (tabs layout)
   function goToHome() {
     router.replace("/(tabs)");
   }
 
+  // Refresh profile data (favorites and reviews)
   async function refreshProfileData() {
     if (!userId) {
       Alert.alert(
@@ -82,6 +98,7 @@ export default function ProfileScreen() {
     Alert.alert("Refreshed", "Profile data updated.");
   }
 
+  // Fetch user's favorite media from Supabase
   async function loadFavorites() {
     if (!userId) return;
     setLoadingFavorites(true);
@@ -107,6 +124,7 @@ export default function ProfileScreen() {
     }
   }
 
+  // Fetch user's reviews from Supabase
   async function loadReviews() {
     if (!userId) return;
     setLoadingReviews(true);
@@ -132,15 +150,18 @@ export default function ProfileScreen() {
     }
   }
 
+  // Handle avatar selection, upload to Supabase, and cleanup
   async function onChangeAvatarPress() {
     if (!userId) return;
 
+    // Request photo library permissions
     const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!permission.granted) {
       Alert.alert("Permission needed", "Please allow photo library access.");
       return;
     }
 
+    // Launch image picker with 1:1 aspect ratio constraint
     const picked = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ["images"],
       allowsEditing: true,
@@ -155,17 +176,20 @@ export default function ProfileScreen() {
       setError(null);
 
       const asset = picked.assets[0];
+      // Extract and validate file extension from MIME type
       const mimeType = asset.mimeType ?? "image/jpeg";
       const extFromMime = mimeType.split("/")[1] || "jpg";
       const safeExt = ["jpg", "jpeg", "png", "webp"].includes(extFromMime)
         ? extFromMime
         : "jpg";
 
+      // Use stable storage path (per-user key, no timestamps to avoid orphans)
       const storagePath = userId + "/avatar." + safeExt;
 
+      // Save previous avatar URL for cleanup after successful upload
       const previousUrl = profile?.avatar_url ?? null;
 
-      // Create FormData for multipart upload
+      // Platform-specific file handling (web uses Blob, native uses URI)
       let fileData: any;
 
       if (Platform.OS === "web") {
@@ -174,7 +198,7 @@ export default function ProfileScreen() {
         const blob = await response.blob();
         fileData = blob;
       } else {
-        // On native, use the URI directly
+        // On native, use the URI directly (Expo handles file reading)
         fileData = {
           uri: asset.uri,
           type: mimeType,
@@ -182,9 +206,11 @@ export default function ProfileScreen() {
         };
       }
 
+      // Wrap file in FormData for multipart upload
       const formData = new FormData();
       formData.append("file", fileData);
 
+      // Upload to Supabase with upsert (overwrites old file at same path)
       const upload = await supabase.storage
         .from("avatars")
         .upload(storagePath, formData as any, {
@@ -194,26 +220,30 @@ export default function ProfileScreen() {
         });
       if (upload.error) throw upload.error;
 
+      // Get public CDN URL for new avatar
       const { data: publicData } = supabase.storage
         .from("avatars")
         .getPublicUrl(storagePath);
       const publicUrl = publicData.publicUrl;
 
-      // Optional cache-bust for immediate UI refresh
+      // Add cache-bust query param for immediate UI refresh
       const displayUrl = publicUrl + "?t=" + Date.now();
 
+      // Update user's profile with new avatar URL
       const update = await supabase
         .from("profiles")
         .update({ avatar_url: publicUrl, updated_at: new Date().toISOString() })
         .eq("id", userId);
       if (update.error) throw update.error;
 
-      // Clean up previous avatar only after new avatar is stored and profile is updated.
+      // Clean up previous avatar only after new one is confirmed in DB
       if (previousUrl) {
         const marker = "/storage/v1/object/public/avatars/";
         const i = previousUrl.indexOf(marker);
         if (i !== -1) {
+          // Extract storage path from public URL
           const oldPath = previousUrl.slice(i + marker.length).split("?")[0];
+          // Only delete if different from new path
           if (oldPath && oldPath !== storagePath) {
             const removeResult = await supabase.storage
               .from("avatars")
@@ -228,6 +258,7 @@ export default function ProfileScreen() {
         }
       }
 
+      // Update local state and show success
       setAvatarUrl(displayUrl);
       Alert.alert("Success", "Profile picture updated.");
     } catch (e: any) {
@@ -239,16 +270,19 @@ export default function ProfileScreen() {
     }
   }
 
+  // Load favorites and reviews when userId becomes available
   useEffect(() => {
     if (!userId) return;
     loadFavorites();
     loadReviews();
   }, [userId]);
 
+  // Sync avatar URL when profile updates
   useEffect(() => {
     setAvatarUrl(profile?.avatar_url ?? null);
   }, [profile?.avatar_url]);
 
+  // Navigate to media detail screen
   function openMediaDetail(mediaId: number, mediaType: "movie" | "tv") {
     router.push({
       pathname: "/media/[detail]",
@@ -268,6 +302,7 @@ export default function ProfileScreen() {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ paddingBottom: bottom_padding }}
         >
+          {/* Header with back button, title, and refresh button */}
           <View style={styles.headerRow}>
             <Pressable style={styles.iconButton} onPress={goToHome}>
               <Ionicons name="arrow-back" size={22} color="#fff" />
@@ -283,6 +318,7 @@ export default function ProfileScreen() {
             </Pressable>
           </View>
 
+          {/* Avatar with edit button */}
           <Pressable
             onPress={onChangeAvatarPress}
             disabled={isUploadingAvatar}
@@ -296,6 +332,7 @@ export default function ProfileScreen() {
               </View>
             )}
 
+            {/* Camera badge with loading spinner during upload */}
             <View style={styles.avatarEditBadge}>
               {isUploadingAvatar ? (
                 <ActivityIndicator size="small" color="#fff" />
@@ -305,8 +342,10 @@ export default function ProfileScreen() {
             </View>
           </Pressable>
 
+          {/* Display name */}
           <Text style={styles.name}>{displayName}</Text>
 
+          {/* Stats row showing favorites and reviews count */}
           <View style={styles.statsRow}>
             <View style={styles.statItem}>
               <Ionicons name="heart-outline" size={16} color={"#d7d7e6"} />
@@ -324,6 +363,7 @@ export default function ProfileScreen() {
             </View>
           </View>
 
+          {/* Tab navigation (Favorites/Reviews) */}
           <View style={styles.tabRow}>
             <Pressable
               onPress={() => setActiveTab("favorites")}
@@ -360,6 +400,7 @@ export default function ProfileScreen() {
             </Pressable>
           </View>
 
+          {/* Tab content - shows either favorites or reviews based on active tab */}
           <View style={styles.tabContent}>
             {!!error && <Text style={styles.errorText}>{error}</Text>}
 
@@ -405,6 +446,8 @@ export default function ProfileScreen() {
               ))
             )}
           </View>
+
+          {/* Sign out button */}
           <SignOutButton />
         </ScrollView>
       </ScreenWrapper>
@@ -412,11 +455,14 @@ export default function ProfileScreen() {
   );
 }
 
+// Styles for the profile screen
 const styles = StyleSheet.create({
+  // Main container with gradient background
   container: {
     flex: 1,
     paddingHorizontal: 22,
   },
+  // Header row layout
   headerRow: {
     flexDirection: "row",
     alignItems: "center",
@@ -433,6 +479,7 @@ const styles = StyleSheet.create({
     fontSize: 32,
     fontWeight: "600",
   },
+  // Avatar styles
   avatar: {
     width: 132,
     height: 132,
@@ -448,6 +495,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginTop: 22,
   },
+  // Stats display
   statsRow: {
     marginTop: 26,
     flexDirection: "row",
@@ -469,6 +517,7 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     backgroundColor: "#ffffff1f",
   },
+  // Tab navigation styles
   tabRow: {
     marginTop: 24,
     flexDirection: "row",
@@ -495,6 +544,7 @@ const styles = StyleSheet.create({
   tabTextActive: {
     color: "#fff",
   },
+  // Tab content area
   tabContent: {
     marginTop: 18,
     marginBottom: 32,
@@ -503,6 +553,7 @@ const styles = StyleSheet.create({
     color: "#d7d7e6",
     fontSize: 14,
   },
+  // List item card styles
   listCard: {
     backgroundColor: "#ffffff12",
     borderWidth: 1,
@@ -536,6 +587,7 @@ const styles = StyleSheet.create({
     color: "#ffd4d4",
     marginBottom: 10,
   },
+  // Avatar wrapper and badge
   avatarWrapper: {
     alignSelf: "center",
     marginTop: 26,
