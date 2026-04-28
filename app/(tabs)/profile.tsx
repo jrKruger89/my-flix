@@ -12,6 +12,7 @@ import {
   ActivityIndicator,
   Alert,
   Image,
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -66,7 +67,7 @@ export default function ProfileScreen() {
   }, [profile?.username, claims?.email]);
 
   function goToHome() {
-    router.replace("/");
+    router.replace("/(tabs)");
   }
 
   async function refreshProfileData() {
@@ -141,7 +142,7 @@ export default function ProfileScreen() {
     }
 
     const picked = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      mediaTypes: ["images"],
       allowsEditing: true,
       aspect: [1, 1],
       quality: 0.8,
@@ -164,14 +165,32 @@ export default function ProfileScreen() {
 
       const previousUrl = profile?.avatar_url ?? null;
 
-      const fileRes = await fetch(asset.uri);
-      const fileBlob = await fileRes.blob();
+      // Create FormData for multipart upload
+      let fileData: any;
+
+      if (Platform.OS === "web") {
+        // On web, fetch the blob from the data URL
+        const response = await fetch(asset.uri);
+        const blob = await response.blob();
+        fileData = blob;
+      } else {
+        // On native, use the URI directly
+        fileData = {
+          uri: asset.uri,
+          type: mimeType,
+          name: `avatar.${safeExt}`,
+        };
+      }
+
+      const formData = new FormData();
+      formData.append("file", fileData);
 
       const upload = await supabase.storage
         .from("avatars")
-        .upload(storagePath, fileBlob, {
+        .upload(storagePath, formData as any, {
           contentType: mimeType,
           upsert: true,
+          cacheControl: "3600",
         });
       if (upload.error) throw upload.error;
 
